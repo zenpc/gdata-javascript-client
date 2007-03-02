@@ -1,0 +1,353 @@
+<html>
+<head>
+<title>Sample Using the GData JS Client Library</title>
+<link rel="stylesheet" type="text/css" href="http://code.google.com/css/dev_docs.css">
+<script type="text/javascript" src="http://gd.google.com/gd/api?file=gdata-core.js&v=1.0"></script>
+<script type="text/javascript" src="../../common/calendar_time_format.js"></script>
+<script type="text/javascript">
+<!--
+/* Copyright (c) 2007 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Loads the Google Developers Event Calendar
+ */
+function loadDeveloperCalendar() {
+  loadCalendarByAddress('developer-calendar@google.com');
+}
+
+/**
+ * Loads the JS source for a user to copy/paste into their site into a div
+ * with the name 'jsSource'.
+ */
+function generateJsSource() {
+  var elementToUpdate = document.getElementById('jsSourceFinal');
+  var elementUpdateTemplate = document.getElementById('jsSourceTemplate');
+  /* in IE */
+  if (document.all) {
+    elementToUpdate.innerText = 
+        elementUpdateTemplate.innerText +
+        "\n<script type=\"text/javascript\">" +
+        "\nloadCalendar('http://www.google.com/calendar/feeds/" + 
+        document.getElementById('calendarAddress').value + "/public/full');" +
+        "\n</script>";
+  } else {
+    /* in Firefox/other */
+    elementToUpdate.textContent = 
+        elementUpdateTemplate.textContent +
+        "\n<script type=\"text/javascript\">" +
+        "\nloadCalendar('http://www.google.com/calendar/feeds/" + 
+        document.getElementById('calendarAddress').value + "/public/full');" +
+        "\n</script>";
+  }
+  document.getElementById('jsSourceFinal').style.display = 'block';
+}
+
+/**
+ * Determines the full calendarUrl based upon the calendarAddress
+ * argument and calls loadCalendar with the calendarUrl value.
+ *
+ * @param {string} calendarAddress is the email-style address for the calendar
+ */ 
+function loadCalendarByAddress(calendarAddress) {
+  var calendarUrl = 'http://www.google.com/calendar/feeds/' +
+                    calendarAddress + 
+                    '/public/full';
+  loadCalendar(calendarUrl);
+}
+
+/**
+ * Uses GData JS Client Library to retrieve a calendar feed from the specified
+ * URL.  The feed is controlled by several query parameters and a callback 
+ * function is called to process the feed results.
+ *
+ * @param {string} calendarUrl is the URL for a public calendar feed
+ */  
+function loadCalendar(calendarUrl) {
+  var service = new 
+      GDataGoogleService('apps', 'gdata-js-client-samples-simple');
+  var query = new GDataQuery(calendarUrl);
+  query.setParam('orderby', 'starttime');
+  query.setParam('sortorder', 'ascending');
+  query.setParam('futureevents', 'true');
+  query.setParam('singleevents', 'true');
+  query.setParam('max-results', '10');
+  service.getFeed(query.getUri(), listEvents, handleGDError);
+}
+
+/**
+ * Callback function for the GData JS Client Library to call when an error
+ * occurs during the retrieval of the feed.  Details available depend partly
+ * on the web browser, but this shows a few basic examples. In the case of
+ * a privileged environment using ClientLogin authentication, there may also
+ * be an e.type attribute in some cases.
+ *
+ * @param {Error} e is an instance of an Error 
+ */
+function handleGDError(e) {
+  document.getElementById('jsSourceFinal').setAttribute('style', 
+      'display:none');
+  if (e instanceof Error) {
+    /* alert with the error line number, file and message */
+    alert('Error at line ' + e.lineNumber +
+          ' in ' + e.fileName + '\n' +
+          'Message: ' + e.message);
+    /* if available, output HTTP error code and status text */
+    if (e.cause) {
+      var status = e.cause.status;
+      var statusText = e.cause.statusText;
+      alert('Root cause: HTTP error ' + status + ' with status text of: ' + 
+            statusText);
+    }
+  } else {
+    alert(e.toString());
+  }
+}
+
+/**
+ * Callback function for the GData JS Client Library to call with a feed of
+ * events retrieved.
+ *
+ * Creates an unordered list of events in a human-readable form.  This list of
+ * events is added into a div called 'events'.  The title for the calendar is
+ * placed in a div called 'calendarTitle'
+ *
+ * @param {json} feedRoot is the root of the feed, containing all entries 
+ */ 
+function listEvents(feedRoot) {
+  var entries = feedRoot.feed.entry;
+  var eventDiv = document.getElementById('events');
+  if (eventDiv.childNodes.length > 0) {
+    eventDiv.removeChild(eventDiv.childNodes[0]);
+  }	  
+  /* create a new unordered list */
+  var ul = document.createElement('ul');
+  /* set the calendarTitle div with the name of the calendar */
+  document.getElementById('calendarTitle').innerHTML = 
+    "Calendar: " + feedRoot.feed.title.$t;
+  /* loop through each event in the feed */
+  var l = entries.length;
+  for (var i = 0; i < l; i++) {
+    var entry = entries[i];
+    var title = entry.title.$t;
+    var start = entry['gd$when'][0].startTime;
+    var entryLinkHref;
+
+    /* get the URL to link to the event */
+    var ll = entry['link'].length;
+    for (var linki = 0; linki < ll; linki++) {
+      if (entry['link'][linki]['type'] == 'text/html' &&
+          entry['link'][linki]['rel'] == 'alternate') {
+        entryLinkHref = entry['link'][linki]['href'];
+      }
+    }
+
+    var dateString = formatGCalTime(start);
+    var li = document.createElement('li');
+
+    /* if we have a link to the event, create an 'a' element */
+    if (typeof entryLinkHref != 'undefined') {
+      entryLink = document.createElement('a');
+      entryLink.setAttribute('href', entryLinkHref);
+      entryLink.appendChild(document.createTextNode(title));
+      li.appendChild(entryLink);
+      li.appendChild(document.createTextNode(' - ' + dateString));
+    } else {
+      li.appendChild(document.createTextNode(title + ' - ' + dateString));
+    }	    
+
+    /* append the list item onto the unordered list */
+    ul.appendChild(li);
+  }
+  eventDiv.appendChild(ul);
+}
+
+//-->
+</script>
+</head>
+<body onload="loadDeveloperCalendar(); generateJsSource();">
+<h2>Sample Using the GData JS Client Library</h2>
+
+<p>
+  This sample demonstrates displaying a list of upcoming calendar events from a 
+  Google Calendar on a web page using the GData JavaScript Client Library.
+</p>
+<p>
+  The list of events below is retrieved using the GData JavaScript Client 
+  Library from the <a href="http://code.google.com/eventcalendar.html">Google Developers Event Calendar</a>.
+</p>
+<p>
+  You can change the feed address to retrieve the events from any public 
+  calendar.  The feed address is either your e-mail address 
+  (for your primary calendar) or a special address for secondary calendars.  
+  This address can be found by following the 
+  <a href="http://www.google.com/support/calendar/bin/answer.py?answer=37103&query=calendar+address&topic=&type=">instructions</a> 
+  on the Calendar Help Center.  Your calendar must be 
+  <a href="http://www.google.com/support/calendar/bin/answer.py?answer=37535&query=calendar+address&topic=&type=">shared</a> 
+  with the world.
+</p>
+<p>
+  An example calendar feed is:
+  <pre>
+http://www.google.com/calendar/feeds/&lt;calendar address&gt;/public/full
+</pre>
+</p>
+<form onsubmit="return false;">
+   <h3><img src="http://www.google.com/uds/solutions/wizards/img/1b.gif" style="vertical-align:middle"><b>Retrieve a calendar by calendar address:</b></h3>
+  <p>
+    <input type="text" size="30" id="calendarAddress" name="calendarAddress" value="developer-calendar@google.com">
+    <input type="button" name="submitButton" onclick="loadCalendarByAddress(this.form.calendarAddress.value); generateJsSource();" value="Retrieve" />
+  </p>
+</form>
+
+<hr>
+<h3>
+<img src="http://www.google.com/uds/solutions/wizards/img/2b.gif" style="vertical-align:middle">Preview Events:
+</h3>
+<h3 id="calendarTitle">Loading...</h3>
+<div id="events"><p></p></div>
+<hr>
+<h3><img src="http://www.google.com/uds/solutions/wizards/img/2b.gif" style="vertical-align:middle"><b>Copy and Paste to your site:</b></h3>
+<p>
+  You can copy and paste the following where you want the list of calendar events to 
+  appear.  Do not place it within the <code>&lt;head&gt; ... &lt;/head&gt;</code> 
+  section of your page unless you plan on relocating the <code>&lt;div id="calendar"&gt;...&lt;/div&gt;</code> element out of this chunk of code.
+</p>
+
+<div id="jsSourceDiv">
+  <pre id="jsSourceTemplate" style="display: none">
+&lt;script type="text/javascript" src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/common/calendar_time_format.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="http://gd.google.com/gd/api?file=gdata-core.js&v=1.0"&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+/**
+ * Uses GData JS Client Library to retrieve a calendar feed from the specified
+ * URL.  The feed is controlled by several query parameters and a callback 
+ * function is called to process the feed results.
+ *
+ * @param {string} calendarUrl is the URL for a public calendar feed
+ */  
+function loadCalendar(calendarUrl) {
+  var service = new 
+      GDataGoogleService('apps', 'gdata-js-client-samples-simple');
+  var query = new GDataQuery(calendarUrl);
+  query.setParam('orderby', 'starttime');
+  query.setParam('sortorder', 'ascending');
+  query.setParam('futureevents', 'true');
+  query.setParam('singleevents', 'true');
+  query.setParam('max-results', '10');
+  service.getFeed(query.getUri(), listEvents, handleGDError);
+}
+
+/**
+ * Callback function for the GData JS Client Library to call when an error
+ * occurs during the retrieval of the feed.  Details available depend partly
+ * on the web browser, but this shows a few basic examples. In the case of
+ * a privileged environment using ClientLogin authentication, there may also
+ * be an e.type attribute in some cases.
+ *
+ * @param {Error} e is an instance of an Error 
+ */
+function handleGDError(e) {
+  if (e instanceof Error) {
+    /* alert with the error line number, file and message */
+    alert('Error at line ' + e.lineNumber +
+          ' in ' + e.fileName + '\n' +
+          'Message: ' + e.message);
+    /* if available, output HTTP error code and status text */
+    if (error.cause) {
+      var status = error.cause.status;
+      var statusText = error.cause.statusText;
+      alert('Root cause: HTTP error ' + status + ' with status text of: ' + 
+            statusText);
+    }
+  } else {
+    alert(e.toString());
+  }
+}
+
+/**
+ * Callback function for the GData JS Client Library to call with a feed of
+ * events retrieved.
+ *
+ * Creates an unordered list of events in a human-readable form.  This list of
+ * events is added into a div called 'events'.  The title for the calendar is
+ * placed in a div called 'calendarTitle'
+ *
+ * @param {json} feedRoot is the root of the feed, containing all entries 
+ */ 
+function listEvents(feedRoot) {
+  var entries = feedRoot.feed.entry;
+  var eventDiv = document.getElementById('events');
+  if (eventDiv.childNodes.length &gt; 0) {
+    eventDiv.removeChild(eventDiv.childNodes[0]);
+  }	  
+  /* create a new unordered list */
+  var ul = document.createElement('ul');
+  /* set the calendarTitle div with the name of the calendar */
+  document.getElementById('calendarTitle').innerHTML = 
+    "Calendar: " + feedRoot.feed.title.$t;
+  /* loop through each event in the feed */
+  var l = entries.length;
+  for (var i = 0; i &lt; l; i++) {
+    var entry = entries[i];
+    var title = entry.title.$t;
+    var start = entry['gd$when'][0].startTime;
+    var entryLinkHref;
+
+    /* get the URL to link to the event */
+    var ll = entry['link'].length;
+    for (var linki = 0; linki &lt; ll; linki++) {
+      if (entry['link'][linki]['type'] == 'text/html' &amp;&amp;
+          entry['link'][linki]['rel'] == 'alternate') {
+        entryLinkHref = entry['link'][linki]['href'];
+      }
+    }
+
+    var dateString = formatGCalTime(start);
+    var li = document.createElement('li');
+
+    /* if we have a link to the event, create an 'a' element */
+    if (typeof entryLinkHref != 'undefined') {
+      entryLink = document.createElement('a');
+      entryLink.setAttribute('href', entryLinkHref);
+      entryLink.appendChild(document.createTextNode(title));
+      li.appendChild(entryLink);
+      li.appendChild(document.createTextNode(' - ' + dateString));
+    } else {
+      li.appendChild(document.createTextNode(title + ' - ' + dateString));
+    }	    
+
+    /* append the list item onto the unordered list */
+    ul.appendChild(li);
+  }
+  eventDiv.appendChild(ul);
+}
+&lt;/script&gt;
+&lt;div id="calendar"&gt;
+&lt;h3 id="calendarTitle"&gt;&lt;/h3&gt;
+&lt;div id="events"&gt;&lt;p&gt;Loading...&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;
+  </pre>
+  <pre id="jsSourceFinal" style="display:none"></pre>
+</div>
+<h3>Resources:</h3>
+<p>
+  <ul>
+    <li><a href="http://code.google.com/apis/calendar/">Google Calendar Data API</a></li>
+    <li><a href="http://code.google.com/apis/gdata/client-js.html">GData Java Client Library</a></li>
+  </ul>
+</p>
+</body>
+</html>
