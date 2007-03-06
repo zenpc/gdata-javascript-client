@@ -1,0 +1,77 @@
+<html>
+<head>
+<title>Manage a personalized stock portfolio in Google Desktop and OS X Dashboard using Google Spreadsheets</title>
+<link rel="stylesheet" type="text/css" href="http://code.google.com/css/dev_docs.css">
+<!--
+/* Copyright (c) 2007 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+</head>
+<body>
+<h2>Manage personalized stock portfolio in Google Desktop and OS X Dashboard using Google Spreadsheets</h2>
+<p>This sample demonstrates how to use the GData JavaScript Client library in Google Desktop Gadget and Mac OS X Dashboard Widget environments.  Each of these samples works with a Google Spreadsheet which you create in your account.  The widget/gadget then uses this spreadsheet to maintain your stock portfolio and uses the <code><a href="http://docs.google.com/support/spreadsheets/bin/answer.py?answer=54198">GoogleFinance()</code></a> function in Google Spreadsheets.</p>
+
+<table border="0">
+  <tr>
+    <td><a href="#">Google Desktop Gadget</a></td>
+    <td><a href="#">Mac OS X Dashboard Widget</a></td>
+  </tr>
+  <tr>
+    <td><br /><img src="stock_widget_gd_screenshot.gif"></td>
+    <td><img src="stock_widget_osx_screenshot.gif"></td>
+  </tr>
+</table>
+
+<h3><img src="http://www.google.com/uds/solutions/wizards/img/1b.gif" style="vertical-align:middle"><b>Download and install the Gadget/Widget:</b></h3>
+<ul>
+  <li><a href="#">Google Desktop Gadget</a></li>
+  <li><a href="#">OS X Dashboard Widget</a></li>
+</ul>
+
+<h3><img src="http://www.google.com/uds/solutions/wizards/img/2b.gif" style="vertical-align:middle"><b>Create a Google Spreadsheet:</b></h3>
+<p>Visit <a href="http://spreadsheets.google.com/">Google Spreadsheets</a> and <a href="http://docs.google.com/support/spreadsheets/bin/answer.py?answer=40603&topic=8839">create</a> a new spreadsheet.  The first row of the spreadsheet should contain the following data.  This data represents the column headers.  You do not need to enter in any other information into your spreadsheet.</p>
+<table>
+  <tr>
+    <td>Ticker</td>
+    <td>Price</td>
+    <td>High</td>
+    <td>Low</td>
+    <td>Data Delay</td>
+    <td>Change</td>
+    <td>Change Percentage</td>
+    <td>Shares</td>
+    <td>Total</td>
+  </tr>
+</table>
+
+<h3><img src="http://www.google.com/uds/solutions/wizards/img/3b.gif" style="vertical-align:middle"><b>Manage your Portfolio:</b></h3>
+<p>
+By default, both applications display the stock ticker using stocks available from a public spreadsheet we have defined.  If you want to maintain your own portfolio, please go to the preferences for the application and enter information about the spreadsheet that you've created as well as the username and password for your account.  
+</p>
+  
+
+<h3>Resources:</h3>
+
+<p>
+  <ul>
+    <li><a href="http://code.google.com/apis/spreadsheets/">Google Spreadsheets Data API</a></li>
+    <li><a href="http://code.google.com/apis/gdata/client-js.html">GData JavaScript Client Library</a></li>
+    <li><a href="http://docs.google.com/support/spreadsheets/bin/answer.py?answer=54198">GoogleFinance() function</a></li>
+    <li><a href="http://docs.google.com/support/spreadsheets/bin/answer.py?answer=54199">Other interesting data available from within Google Spreadsheets</a></li>
+  </ul>
+</p>
+</body>
+</html>
+
