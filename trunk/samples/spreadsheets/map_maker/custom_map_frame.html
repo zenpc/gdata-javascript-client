@@ -40,7 +40,7 @@
 
 <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAVzcu66YGicZvSPDVjflWZRTxMiSd5k_LHO7VcD3heRKw4wCMkhSQvFp9Gj1K3kyGHgRoSeudpyuD8w" 
   type="text/javascript"></script>
-<script src="http://gd.google.com/gd/api?file=gdata-core.js&v=1.0"
+<script src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"
   type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -87,6 +87,9 @@ var param_lngColumn = "";
 var param_rankColumn = "";
 var param_mapWidth;
 var param_mapHeight;
+
+// Load the Google data JavaScript client library
+google.load("gdata", "1");
 
 /**
 * Utility function to extract parameters appended to URL.
@@ -259,11 +262,11 @@ function cm_createMarker(point, title, html, rank) {
 
   if(rank > 0 && rank < 100){
     nIcon.image = "http://gdata-javascript-client.googlecode.com/svn/trunk/" +
-        "samples/spreadsheets/map_maker/markers_all/blue_marker" + 
+        "samples/spreadsheets/map_maker/markers/blue_marker" + 
         rank + ".png";
   } else { 
     nIcon.image = "http://gdata-javascript-client.googlecode.com/svn/trunk/" +
-        "samples/spreadsheets/map_maker/markers_all/blue_blank.png";
+        "samples/spreadsheets/map_maker/markers/blue_blank.png";
   }
 
   markerOpts.icon = nIcon;

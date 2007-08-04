@@ -1,0 +1,708 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>Google Spreadsheets to Chart Wizard</title>
+<script src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"
+    type="text/javascript"></script>
+<script type="text/javascript">
+<!--
+/* Copyright (c) 2007 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var ssKey;
+var wsId;
+var columns = Array();
+var dataSeriesNum = 0;
+
+var CHART_COLORS = {'Red': 'FF0000','Green': '00FF00','Blue': '0000FF',
+    'Yellow': 'FFFF00','Orange': 'FFA500','Purple': '800080'};
+var CHART_TYPES = {'Line': '1','Area': '2','Bar': '3'};
+
+// Load the Google data JavaScript client library
+google.load("gdata", "1");
+
+/**
+ * Lists the entries from the spreadsheet feed in a table.
+ * If there are more than 5 rows, it truncates at row 3
+ * inserts an ellipsis, and then shows the final row.
+ * It populates the columns array simultaneously.
+ * @param {Object} json Worksheet feed in JSON format
+ */
+function listEntries(json) {
+  removeOldResults();
+
+  var p = document.createElement('p');
+  p.setAttribute('id', 'output');
+
+  var entry = json.feed.entry[0];
+  for (var j in entry) {
+    var prefix = j.split('$')[0];
+    var column = j.split('$')[1];
+    if(prefix=='gsx') {
+      columns.push(column);
+    }
+  }
+
+  var t = document.getElementById('dataTBODY');
+  var th = document.createElement('tr');
+  // write out table header
+  var td = document.createElement('td');
+  var txt = document.createTextNode(' ');
+  td.style.backgroundColor = '#DDDDDD';
+  td.style.fontWeight = 'bold';
+
+  td.appendChild(txt);
+  th.appendChild(td);
+  for (var i = 0; i < columns.length; i++) {
+    var td = document.createElement('td');
+    var txt = document.createTextNode(columns[i]);
+    td.style.backgroundColor = '#DDDDDD';
+    td.style.fontWeight = 'bold';
+    td.appendChild(txt);
+    th.appendChild(td);
+  }
+  t.appendChild(th);
+
+  // write out data rows
+  for (var i = 0; i < json.feed.entry.length; i++) {
+    var tr = document.createElement('tr');
+    var entry = json.feed.entry[i];
+    var td = document.createElement('td');
+    var txt = document.createTextNode(i+1);
+    td.style.backgroundColor = '#EEEEEE';
+    td.appendChild(txt);
+    tr.appendChild(td);
+
+    for (var j = 0; j < columns.length; j++) {
+      var cString = entry['gsx$'+columns[j]].$t;
+      var td = document.createElement('td');
+      var txt = document.createTextNode(cString);
+      td.appendChild(txt);
+      tr.appendChild(td);
+    }
+    t.appendChild(tr);
+    
+    // if we just reported 3rd row and table has more than 5 rows
+    if (i == 2 && json.feed.entry.length > 5) {
+      i = json.feed.entry.length - 2;
+      var tr = document.createElement('tr');
+      var entry = json.feed.entry[i];
+      for (var j = 0; j < columns.length + 1; j++) {
+        var cString = '...';
+        var td = document.createElement('td');
+        var txt = document.createTextNode(cString);
+        if(j == 0) {
+          td.style.backgroundColor = '#EEEEEE';
+        }
+        td.appendChild(txt);
+        tr.appendChild(td);
+      }
+      t.appendChild(tr);
+    }
+  }
+  
+  document.getElementById('dataP').innerHTML = '';
+
+// Re-enable the ok button.
+  var ok_button = document.getElementById('ok_button');
+  ok_button.removeAttribute('disabled');
+
+  document.getElementById('customizeInner').style.display = '';
+  document.getElementById('embedInner').style.display = '';
+
+  var xSelect = document.createElement('select');
+  xSelect.id = 'xAxis';
+  xSelect.name = 'xAxis';
+  xSelect.onchange = chartReload;
+  for (var j = 0; j < columns.length; j++) {
+    var xOption = document.createElement('option');
+    xOption.setAttribute('value',columns[j]);
+    var txt = document.createTextNode(columns[j]);
+    xOption.appendChild(txt);
+    xSelect.appendChild(xOption);
+  }
+  var xTxt = document.createTextNode('X axis: ');
+  document.getElementById('xAxisDIV').appendChild(xTxt);
+  document.getElementById('xAxisDIV').appendChild(xSelect);
+
+  addDataSeries();
+}
+
+/*
+ * Adds a data series to the form, which consists of
+ * a drop-down select for column, color, and type.
+ * Increments dataSeriesNum.
+*/
+function addDataSeries(){
+  var dsDIV = document.getElementById('dataSeriesDIV');
+  var dsInnerDIV = document.createElement('div');
+  dsInnerDIV.id = 'dataSeries' + dataSeriesNum;
+  dsInnerDIV.style.borderBottom = '1px solid black';
+  dsInnerDIV.style.padding = '5px';
+  dsInnerDIV.style.margin = '2px';
+
+  var ySelect = document.createElement('select');
+  ySelect.id = 'ySelect' + dataSeriesNum;
+  ySelect.name = 'ySelect' + dataSeriesNum;
+  ySelect.onchange = chartReload;
+
+  for (var j = 0; j < columns.length; j++) {
+    var yOption = document.createElement('option');
+    yOption.setAttribute('value',columns[j]);
+    if (j == 1) { // select second column, if exists
+     yOption.setAttribute('selected',true);
+    }
+    var txt = document.createTextNode(columns[j]);
+    yOption.appendChild(txt);
+    ySelect.appendChild(yOption);
+  }
+
+  var cSelect = document.createElement('select');
+  cSelect.id = 'cSelect' + dataSeriesNum;
+  cSelect.name = 'cSelect' + dataSeriesNum;
+  cSelect.onchange = chartReload;
+
+  for (var chartColor in CHART_COLORS) {
+    var cOption = document.createElement('option');
+    cOption.setAttribute('value', CHART_COLORS[chartColor]);
+    var txt = document.createTextNode(chartColor);
+    cOption.appendChild(txt);
+    cSelect.appendChild(cOption);
+  }
+
+  var tSelect = document.createElement('select');
+  tSelect.id = 'tSelect' + dataSeriesNum;
+  tSelect.name = 'tSelect' + dataSeriesNum;
+  tSelect.onchange = chartReload;
+
+  for (var chartType in CHART_TYPES){
+    var tOption = document.createElement('option');
+    tOption.setAttribute('value',CHART_TYPES[chartType]);
+    var txt = document.createTextNode(chartType);
+    tOption.appendChild(txt);
+    tSelect.appendChild(tOption);
+  }
+
+  var yTxt = document.createTextNode('\tY axis:');
+  dsInnerDIV.appendChild(yTxt);
+  dsInnerDIV.appendChild(ySelect);
+
+  var tTxt = document.createTextNode('\tType:');
+  dsInnerDIV.appendChild(tTxt);
+  dsInnerDIV.appendChild(tSelect);
+
+  var cTxt = document.createTextNode('\tColor:');
+  dsInnerDIV.appendChild(cTxt);
+  dsInnerDIV.appendChild(cSelect);
+
+  dsInnerDIV.appendChild(document.createElement('br'));
+  dsDIV.appendChild(dsInnerDIV);
+
+  dataSeriesNum++;
+  chartReload();
+}
+
+/*
+ * Removes last data series added by finding 
+ * and removing the last child in the data series DIV
+*/
+function removeDataSeries(){
+  var dsDIV = document.getElementById('dataSeriesDIV');
+  if (dsDIV.lastChild) {
+    dsDIV.removeChild(dsDIV.lastChild);
+    dataSeriesNum--;
+  }
+  chartReload();
+}
+
+/**
+ * Callback function for the GData JS Client Library to call when an error
+ * occurs during the retrieval of the feed. 
+ *
+ * @param {Error} e is an instance of an Error 
+ */
+function handleGDError(e) {
+  if (e instanceof Error) {
+    // alert with the error line number, file and message
+    alert('There has been an error trying to retrieve that feed. ' +
+       'Check that you used the correct spreadsheet key and worksheet ID,' +
+       ' and that you have published the worksheet.'); 
+  } else {
+    alert('Error');
+  }
+}
+
+/**
+ * Called when the user clicks the 'OK' button to retrieve a worksheet feed.
+ * Uses the GData Javascript Library to issue a request to retrieve the feed.
+ * Calls listEntries when feed returned, or calls handleGDError if error is encountered.
+ *
+ * @param {Form} query Form that has the worksheet parameter text inputs
+ */
+function displayResults(query) {
+  removeOldResults();
+
+  // Show a 'Loading..." indicator.
+  var div = document.getElementById('data');
+  var p = document.createElement('p');
+  p.id = 'dataP';
+  p.appendChild(document.createTextNode('Loading...'));
+  div.appendChild(p);
+
+  // Disable the OK button
+  var ok_button = document.getElementById('ok_button');
+  ok_button.disabled = 'true';
+
+  ssKey = query.ssKey.value;
+  wsId = query.wsId.value;
+
+  // 'wise' is the code for using the Spreadsheets service
+  var service = new google.gdata.client.GoogleService('wise','gdata-js-chart');
+  var gquery = new google.gdata.client.Query(
+    'http://spreadsheets.google.com/feeds/list/' + ssKey + '/' + wsId + 
+    '/public/values');
+  service.getFeed(gquery.getUri(), listEntries, handleGDError);
+}
+
+/**
+ * Removes the output generated from the previous result.
+ */
+function removeOldResults() {
+  columns.length = 0;
+  dataSeriesNum = 0;
+  var div = document.getElementById('dataTBODY');
+  while (div.firstChild) {
+    div.removeChild(div.firstChild);
+  }
+  var dsDIV = document.getElementById('dataSeriesDIV');
+  while (dsDIV.firstChild) {
+    dsDIV.removeChild(dsDIV.firstChild);
+  }
+}
+
+function chartReload() {
+  var chartDIV = document.getElementById('chartDIV');
+  if (chartDIV.firstChild) {
+    chartDIV.removeChild(chartDIV.firstChild);
+  }
+
+  var chartWidth = document.getElementById('chartWidth').value;
+  var chartHeight = document.getElementById('chartHeight').value;
+  var xAxis = document.getElementById('xAxis').value;
+  var densityX = document.getElementById('chartDensityX').value;
+  var densityY = document.getElementById('chartDensityY').value;
+  var showLegend = document.getElementById('showLegend').checked;
+
+  var dataSeries = [];
+  var dataSeries_Gadget = [];
+  var dataSeries_Iframe = [];
+  for(var j = 0; j < dataSeriesNum; j++){
+    var chartData = [];
+    var ySelected = document.getElementById('ySelect'+j).value;
+    var cSelected = document.getElementById('cSelect'+j).value;
+    var tSelected = document.getElementById('tSelect'+j).value;
+    dataSeries.push('{"yAxis": "' + ySelected + '", "color": "' + 
+                    cSelected + '", "type": ' + tSelected + '}');
+    dataSeries_Gadget.push(ySelected + ',' + cSelected + ',' + tSelected);
+    dataSeries_Iframe.push(ySelected + ',' + cSelected + ',' + tSelected);
+  }
+  var dataSeriesString = dataSeries.join(',\n'); 
+  var dataSeriesString_Gadget = dataSeries_Gadget.join('|');
+  var dataSeriesString_Iframe = dataSeries_Iframe.join(';');
+
+  // Iframe preview
+  var iframe = document.createElement('iframe');
+  iframe.setAttribute('src', 'customchart.html'
+      + '?ssKey=' + ssKey + '&wsId=' + wsId
+      + '&chartWidth=' + chartWidth + '&chartHeight=' + chartHeight
+      + '&ds=' + dataSeriesString_Iframe + '&xAxis=' + xAxis 
+      + '&showLegend=' + showLegend 
+      + '&densityX=' + densityX + '&densityY=' + densityY);
+
+  iframe.setAttribute('id', 'chartFrame');
+  iframe.setAttribute('width', parseInt(chartWidth)+100);
+  iframe.setAttribute('frameborder', '0');
+  iframe.setAttribute('height', parseInt(chartHeight)+50);
+  document.getElementById('chartDIV').appendChild(iframe);
+
+  // Copy-and-paste code
+  document.getElementById('p_ssKey').innerHTML = '\'' + ssKey + '\'';
+  document.getElementById('p_wsId').innerHTML = '\'' + wsId + '\'';
+  document.getElementById('p_chartWidth').innerHTML = chartWidth;
+  document.getElementById('p_chartHeight').innerHTML = chartHeight;
+  document.getElementById('p_xAxis').innerHTML = '\'' + xAxis + '\'';
+  document.getElementById('p_ds').innerHTML = dataSeriesString;
+  document.getElementById('p_showLegend').innerHTML = showLegend;
+  document.getElementById('p_densityX').innerHTML = densityX;
+  document.getElementById('p_densityY').innerHTML = densityY;
+
+  // Gadget URL
+  document.getElementById('g_ssKey').innerHTML = ssKey;
+  document.getElementById('g_wsId').innerHTML = wsId;
+  document.getElementById('g_width').innerHTML = chartWidth;
+  document.getElementById('g_height').innerHTML = chartHeight;
+  document.getElementById('g_ds').innerHTML = dataSeriesString_Gadget;
+  document.getElementById('g_gwidth').innerHTML = parseInt(chartWidth) + 10;
+  document.getElementById('g_gheight').innerHTML = parseInt(chartHeight) + 10;
+}
+
+//-->
+</script>
+
+<link rel="stylesheet" type="text/css"
+    href="http://code.google.com/css/dev_docs.css">
+</head>
+<body onload="displayResults(document.forms[0])">
+<h2>Create a chart from a published Google Spreadsheet</h3>
+<p>Embed a dynamic chart of a public <a
+href="http://spreadsheets.google.com/" target="_blank">Google
+Spreadsheet</a> on your webpage.
+After loading in your spreadsheet data and customizing the chart,
+you can copy the generated code into your webpage. An example
+spreadsheet's data and chart has been pre-loaded. You can view the
+original spreadsheet in 
+<a href="http://spreadsheets.google.com/pub?key=p9pdwsai2hDOIyPJP-O6mVg" target="new">HTML</a> or 
+<a href="http://spreadsheets.google.com/feeds/list/o03712292828507838454.6243940683656382600/od6/public/values">XML</a>.
+<br/>
+
+<em>This wizard uses the <a href="http://webfx.eae.net/dhtml/chart/chart.html" target="_blank">WebFX Chart JS Library</a>
+ and <a href="http://code.google.com/apis/spreadsheets/overview.html">GData Javascript Client Library</a>.</em>
+</p>
+
+<h3><img src="http://www.google.com/uds/solutions/wizards/img/1b.gif" 
+style="vertical-align:middle"/> Load worksheet data</h3>
+<p>
+To find the spreadsheet and worksheet ID for your Google spreadsheet:
+</p>
+<ul>
+<li>Save and publish the spreadsheet (Warning! Don't publish private data!)</li>
+
+<li>Click on "More Publishing Options," change file format to ATOM &
+generate URL</li>
+<li>The URL should look something like
+'http://spreadsheets.google.com/feeds/list/[spreadsheet
+key]/[worksheet id]/public/values.'
+<li>Find the parts of the URL that match the example below and paste
+them in.</li>
+
+</ul>
+<p>
+Click "Load Worksheet Data" button when done. If your worksheet loaded
+successfully & you're using Firefox, you'll see a snapshot of the
+column data below. Note that the first row is treated as the header
+row - so it's best to put descriptive column titles there (e.g.
+"year", "revenue").
+</p>
+<div style="float:left; padding:20px;">
+<form onsubmit="return false" name="loadData">
+<table style="border:0px">
+<tr>
+<td style="border:0px;">
+<strong>Spreadsheet Key:</strong>
+</td>
+<td style="border:0px">
+<input type="text" name="ssKey"
+size="44" maxlength="43" value="o03712292828507838454.6243940683656382600" />
+</td>
+</tr>
+<tr>
+<td style="border:0px">
+<strong>Worksheet ID:</strong>
+</td>
+<td style="border:0px">
+<input type="text" name="wsId" size="4" value="od6" />
+</td>
+</tr>
+<tr>
+<td style="border:0px">
+</td>
+<td style="border:0px">
+<button id='ok_button' onclick="displayResults(this.form);">Load
+Worksheet Data</button>
+</td>
+</tr>
+</table>
+
+</p>
+</form>
+</div>
+
+<div id="data" style="float:left;"></div>
+<table>
+ <tbody id="dataTBODY">
+ </tbody>
+
+</table>
+
+<br clear="all"/>
+
+<a name="invis">&nbsp;</a>
+<h3><img src="http://www.google.com/uds/solutions/wizards/img/2b.gif"
+ style="vertical-align:middle"/> Customize chart output</h3>
+<div id="customizeInner" style="display:none;">
+<p>
+You can change the width and  height and add multiple data series, and preview the changes instantly.
+</p>
+<br/>
+   <div style="float:left; padding-right:30px; padding-left:30px;">
+       <div>
+
+       <form name="options">
+           <br/><br/>
+
+           <strong>Width:</strong>
+           <input name="chartWidth" id="chartWidth" size="3" value="350"
+onblur="chartReload();" type="text" />
+           &nbsp;&nbsp;
+           <strong>Height:</strong>
+           <input name="chartHeight" id="chartHeight" size="3" value="400"
+onblur="chartReload();" type="text" />
+           <br/><br/>
+           <strong>Y axis line density:</strong>
+           <input name="chartDensityY" id="chartDensityY" size="3" value="10"
+onblur="chartReload();" type="text" />
+           <br/><br/>
+           <strong>Show labels every&nbsp;
+           <input name="chartDensityX" id="chartDensityX" size="2" value="2"
+onblur="chartReload();" type="text" />&nbsp;gridlines.</strong>
+           <br/><br/>
+	   <strong>Show legend?</strong>
+           <input type="checkbox" name="showLegend" id="showLegend" 
+onclick="chartReload();" CHECKED />
+           <br/><br/>        
+           <div id="xAxisDIV" style="font-weight:bold"></div>
+           <br/><br/>        
+           <strong>Data series:</strong>
+
+           <div id="dataSeriesDIV"></div>
+           <a href="#invis" onclick="addDataSeries(); return true;">+ ADD
+Data Series</a>
+           <br/>
+           <a href="#invis" onclick="removeDataSeries(); return true;">-
+REMOVE Data Series</a>
+
+           <br/><br/>
+
+       </form>
+    </div>
+
+  </div>
+
+  <div style="float: left;" id="chartDIV">
+   </div>
+ </div>
+
+   <br/>
+   <br clear="all">
+
+
+   <div style="clear:both;">
+
+    <h3><img src="http://www.google.com/uds/solutions/wizards/img/3b.gif"
+/ style="vertical-align:middle"> Embed it in your website</h3>
+       <div id="embedInner" style="display:none;">
+
+   <p>
+           Copy and paste the following where you want your chart to appear.
+   <p>
+   <p>
+   <strong>Google Gadget</strong>
+   </p>
+
+   <pre class="code" id="gHeadCode" style="width: 700px; overflow-x: scroll;">
+&lt;script src="http://www.google.com/ig/ifr?url=http://gdata-javascript-client.googlecode.com/svn/trunk/samples/spreadsheets/chart_maker/custom_chart.xml&amp;up_ssKey=<span
+id="g_ssKey"></span>&amp;up_wsId=<span
+id="g_wsId"></span>&amp;up_chartWidth=<span
+id="g_width"></span>&amp;up_chartHeight=<span
+id="g_height"></span>&amp;up_ds=[column_name],[hex_color],[graph_type(1-3)]|<span
+id="g_ds"></span>&amp;synd=open&amp;w=<span
+id="g_gwidth"></span>&amp;h=<span
+id="g_gheight"></span>&amp;title=GSpreadsheets+Chart&amp;border=%23ffffff%7C3px%2C1px+solid+%23999999&amp;output=js"&gt;&lt;/script&gt;
+   </pre>
+   <br/>
+   <p>
+   <strong>Inline HTML/Javascript</strong>
+   </p>
+   <pre class="code" id="gHeadCode" style="width: 700px; overflow-x: scroll;">
+&lt;!-- ++Begin GSpreadsheets Chart Wizard Generated Code++ --&gt;
+
+&lt;!-- This div will hold the chart. Place it wherever you want the chart to appear. --&gt;
+
+&lt;div id="chart" class="chart"&gt;&lt;/div&gt;
+
+&lt;script src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/thirdparty/webfxchart/excanvas.js"
+    type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/thirdparty/webfxchart/chart.js"
+    type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/thirdparty/webfxchart/canvaschartpainter.js"
+    type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="http://www.google.com/jsapi?key=YOUR_KEY_HERE"
+    type="text/javascript"&gt;&lt;/script&gt;
+
+&lt;style type="text/css"&gt;
+.chart {
+  font: menu;
+  background: white;
+  color: black;
+  overflow: hidden;
+  position: relative;
+}
+
+.chart .legend {
+  float: left;
+  border: 1px solid black;
+  background: white;
+  padding: 5px 10px 5px 10px;
+}
+
+.chart .legend ul {
+  margin: 0px;
+  padding: 0px 0px 0px 20px;
+}
+
+.chart .legend ul li {
+  list-style: square;
+}
+
+.chart .legend ul li span {
+  color: black;
+}
+&lt;/style&gt;
+
+&lt;script type="text/javascript"&gt;
+var worksheetJSON;
+var params = {
+  'wsId': <span id="p_wsId"></span>,
+  'ssKey': <span id="p_ssKey"></span>,
+  'chartWidth': <span id="p_chartWidth"></span>,
+  'chartHeight': <span id="p_chartHeight"></span>,
+  'ds': [ <span id="p_ds"></span> ],
+  'xAxis': <span id="p_xAxis"></span>,
+  'showLegend': <span id="p_showLegend"></span>,
+  'densityX': <span id="p_densityX"></span>,
+  'densityY': <span id="p_densityY"></span>
+  };
+
+// Load the Google data JavaScript client library
+google.load("gdata", "1");
+
+function SpreadsheetsChart(div, json, params) {
+  this.div = div;
+  this.json = json;
+  this.params = params;
+  div.style.width = this.params['chartWidth'];
+  div.style.height = this.params['chartHeight'];
+  
+  this.params['densityX'] = parseInt(this.params['densityX']);
+  this.params['densityY'] = parseInt(this.params['densityY']);
+}
+
+/**
+* This function initializes the chart, sets chart properties,
+* then iterates through the loaded feed to add data series to the chart.
+*/
+SpreadsheetsChart.prototype.loadAndDraw = function() {
+  var chart = new Chart(this.div);
+  chart.setDefaultType(CHART_LINE);
+
+  if (this.params['showLegend'] == 'true') {
+    chart.setShowLegend(true);
+  } else {
+    chart.setShowLegend(false);
+  }
+
+  chart.setGridDensity(this.json.feed.entry.length, this.params['densityY']);
+
+  // This for loop corresponds to the "Show labels every X gridlines" setting.
+  // It pushes a label if it's on the Xth gridline and a label exists, 
+  // otherwise it pushes an empty string. 
+  var horizontalLabels = [];
+  for (var j = 0; j &lt; this.json.feed.entry.length; j++) {
+    var entry = this.json.feed.entry[j];
+    if (j % this.params['densityX'] == 0 && entry['gsx$' + this.params['xAxis']]) {
+      horizontalLabels.push(entry['gsx$' + this.params['xAxis']].$t);
+    } else {
+      horizontalLabels.push('');
+    }
+  }
+  chart.setHorizontalLabels(horizontalLabels);
+
+  var dataSeriesArray = this.params['ds'];
+  for (var j = 0; j &lt; dataSeriesArray.length; j++) {
+    var dataSeriesName = dataSeriesArray[j].yAxis;
+    var dataSeriesColor = dataSeriesArray[j].color;
+    var dataSeriesType = dataSeriesArray[j].type;
+    var dataSeriesValues = [];
+    for (var k = 0; k &lt; this.json.feed.entry.length; k++) {
+      var entry = this.json.feed.entry[k];
+      if (entry['gsx$' + dataSeriesName]) {
+        dataSeriesValues.push(parseFloat(entry['gsx$' + dataSeriesName].$t));
+      }
+    }
+    chart.add(dataSeriesName, '#' + dataSeriesColor, dataSeriesValues, 
+        dataSeriesType);
+  }
+  chart.draw();
+}
+
+
+/**
+* Callback function for the spreadsheets query.
+* This function uses the values from the URL to set chart parameters.
+* It then creates a new SpreadsheetsChart object, passing in the worksheet JSON,
+* div to hold the chart in, and the parameters.
+*/
+function loadWorksheet(json) {
+  var div = document.getElementById('chart');
+  var spreadsheetsChart = new SpreadsheetsChart(div, json, params);
+  spreadsheetsChart.loadAndDraw();
+}
+
+/**
+ * Callback function for the GData JS Client Library to call when an error
+ * occurs during the retrieval of the feed.  
+ * @param {Error} e is an instance of an Error 
+ */
+function handleGDError(e) {
+  alert('There has been an error trying to retrieve that feed. ' +   
+        'Please check that you correctly typed the key and worksheet ID,' +
+        ' and that you have published the worksheet.'); 
+}
+
+/**
+ * Calls populateVars to set the global variables, changes chart div dimensions.
+ * Uses the Javascript GData Client Library to send a query to 
+ * retrieve spreadsheet feed, set the callback function to loadWorksheetJSON
+ * and the error handling function to handleGDError.
+ */
+function getJSON() {
+  // We use 'wise' here as that refers to the Spreadsheets service
+  var service = new google.gdata.client.GoogleService('wise', 'gdata-js-chart');
+  var query = new google.gdata.client.Query(
+    'http://spreadsheets.google.com/feeds/list/' + 
+    params['ssKey'] + '/' + params['wsId'] + '/public/values');
+  service.getFeed(query.getUri(), loadWorksheet, handleGDError);
+}
+
+getJSON();
+&lt;/script&gt;
+
+   </pre>
+
+   </div>
+ </div>
+
+</body>
+</html>
