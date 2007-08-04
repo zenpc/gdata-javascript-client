@@ -4,8 +4,11 @@
 <title>Search refinement example</title>
 <link rel="stylesheet" type="text/css"
     href="http://code.google.com/css/dev_docs.css"/>
+<!--<script type="text/javascript" 
+        src="http://gd.google.com/gd/api?file=gdata-core.js&v=1.0"></script>-->
 <script type="text/javascript" 
-        src="http://gd.google.com/gd/api?file=gdata-core.js&v=1.0"></script>
+        src="http://www.corp.google.com/%7Eryanboyd/js_samples/gdata-core-dev.js"></script>
+        
 <script type="text/javascript">
 <!--
 /* Copyright (c) 2007 Google Inc.
@@ -63,11 +66,11 @@ function search(query) {
     var attributesDisplay = document.getElementById(ATTRIBUTES_DISPLAY);
     attributesDisplay.innerHTML = LOADING_MESSAGE;
 
-    var attributeQuery = new GDataQuery(ATTRIBUTES_FEED_URL);
+    var attributeQuery = new google.gdata.client.Query(ATTRIBUTES_FEED_URL); // GDataQuery(ATTRIBUTES_FEED_URL);
     attributeQuery.setParam("bq", userQuery);
     attributeQuery.setParam("max-values", "5");
 
-    var snippetQuery = new GDataQuery(SNIPPETS_FEED_URL);
+    var snippetQuery = new google.gdata.client.Query(SNIPPETS_FEED_URL);
     snippetQuery.setParam("bq", userQuery);
     snippetQuery.setParam("max-results", "20");
 
@@ -81,7 +84,8 @@ function search(query) {
     snipQueryP.innerHTML = "Snippets Query: <a href='" + queryUri + "'>" +
                            queryUri + "</a>";
     
-    var service = new GDataGoogleService('gbase', 'gbase-js-client-samples');
+    var service = new google.gdata.client.GoogleService('gbase', 
+        'gbase-js-client-samples');
     service.getFeed(attributeQuery.getUri(), displayAttributes);
     service.getFeed(snippetQuery.getUri(), displaySnippets);
   }
@@ -121,17 +125,51 @@ function displayAttributes(json) {
     attributeName = attributeName.slice(0, 
         attributeName.indexOf("(")).replace(/ /g,"_"); 
 
+    // Create a link from the attribute name which will restrict
+    // queries to items which have this attribute (whatever the value might
+    // be).
+    var attributeLink = document.createElement('a');
+    var attributeRestriction = "'[" + attributeName + "]'";
+    var functionCall = ["javascript:refineSearchByAttribute(", attributeRestriction,
+          ");"].join("");
+
+    attributeLink.href = functionCall;
+    attributeLink.appendChild(document.createTextNode(entry.title.$t));
+    
+    
+
+    // Preserve the items in the current list by adding it to the array.
+/*  var newValue = document.createElement("li");
+  newValue.appendChild(document.createElement("a"));
+  
+  // Transform underscores in the attribute name into spaces because
+  // the bq query parameters accept spaces.
+  attributeName = attributeName.replace(/_/g," ");
+  var newRestriction = "'[" + attributeName + ":" + value + "]'"; 
+
+  var functionCall = ["javascript:refineSearchByAttribute(", newRestriction, 
+      ");"].join("");
+
+  newValue.firstChild.href = functionCall;
+  newValue.firstChild.appendChild(document.createTextNode(value));
+   
+  attributeValueList.appendChild(newValue);
+    addValueToList(attributeName, entry.gm$attribute.gm$value.$t,
+                           valueList);*/
+
     var txt = document.createTextNode(entry.title.$t);
     
     // The value list will be used to hold values for this attribute which
     // are found in the snippets feed results.
     var valueList = document.createElement("ul");
     if(entry.gm$attribute && entry.gm$attribute.gm$value) {
-        addValueToList(attributeName, entry.gm$attribute.gm$value.$t, 
-                       valueList);
+        for (var j = 0; j < entry.gm$attribute.gm$value.length; j++) {
+          addValueToList(attributeName, entry.gm$attribute.gm$value[j].$t,
+                                 valueList);
+        }
     }
 
-    li.appendChild(txt);
+    li.appendChild(attributeLink);
     li.appendChild(valueList);
     ul.appendChild(li);
   }
@@ -290,25 +328,27 @@ function removeOldJSONScriptNodes() {
 </script>
 </head>
 <body>
-<h2>Sample Using the GData JavaScript Client Library with Google Base</h2>
+<h2>Sample Using the Google data JavaScript Client Library with Google Base</h2>
 <p><h3>Introduction</h3></p>
-<p>Here's an example on showing how to refine the search results from 
-<a href="http://base.google.com/base">Google Base</a>
-, using attributes from the attributes feed.</p>
-<p>Start by entering a search keyword. A list of items matching your 
-searches
-appears on the right. On the left, you see a list of attributes 
-and common values
-used for items that
-match your search. If you click on one of the attribute values, a search 
-refinement is added
-to your query and the page requeries using your refinement. The items in the
-list of from the snippets feed now have the desired
-value.</p>
+<p>Here's an example that shows how to refine the search results from 
+<a href="http://base.google.com/base">Google Base</a>, using attributes
+from the attributes feed.</p>
+<p>Start by entering a search keyword in the Query field. When you click the
+"Search" button, a list of items matching your search appears on the right. 
+On the left, you see a list of attributes and common values used for items 
+that match your search. If you click on one of the attribute values, a search
+refinement is added to your query and the page searches Google Base again, 
+using your refinement. The items listed on the right now 
+have the desired value. The information on the left side of the page comes from
+the <a 
+href="http://code.google.com/apis/base/snippets-feed.html">attributes feed</a>,
+and the items on the right come from the <a 
+href="http://code.google.com/apis/base/snippets-feed.html">snippets feed</a>.
+</p>
 <p><h3>How it works</h3></p>
 <p>
 This sample uses the 
-<a href="">GData JavaScript Client Library</a> 
+<a href="">Google data JavaScript Client Library</a> 
 to perform queries 
 against <a href="http://base.google.com/base">Google Base</a>. 
 When you click the search button, the search function is invoked and it
@@ -316,22 +356,23 @@ creates queries which are made against the snippets feed and the attributes
 feed. When results come back from Google Base, the displayAttributes and 
 displaySnippets functions are called.<br/><br/>
 If you would like to learn more about the Google Base API, 
-<a href="http://code.google.com/apis/base/">click here</a>. 
-Documentation for the GData JavaScript library 
-can be found <a href="">here</a>.
+<a href="http://code.google.com/apis/base/">click here</a> or look at the 
+references below. 
+Documentation for the Google data JavaScript library 
+can be found <a href="FIXME!!!">here - FIXME!!!</a>.
 </p>
 <p><h3>Resources</h3></p>
 <ul>
   <li><a href="http://code.google.com/apis/base/">Google Base API</a></li>
-  <li><a 
-      href="http://code.google.com/apis/gdata/client-js.html">
-        GData JavaScript Client Library</a></li>
+  <li><a href="http://code.google.com/apis/gdata/client-js.html">Google data JavaScript Client Library</a></li>
+  <li><a href="http://groups.google.com/group/Google-Base-data-API">Google Base data API discussion group</a></li>
+  <li><a href="http://code.google.com/support/bin/topic.py?topic=10024">Knowledge base for the Google Base data API</a></li>
 </ul>
 <p><h3>Sample Application</h3></p>
 <p>
 <form id="query_form" onSubmit="return false">
  <p>Your query: <input id="query_input" type="text" name="base_query" 
-                 size="100" value="[item type: digital camera]" /> 
+                 size="100" value="digital camera" /> 
   <button id="search_button" onClick="search(this.form)">Search</button>
  </p>
  
