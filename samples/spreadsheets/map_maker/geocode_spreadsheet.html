@@ -7,7 +7,7 @@ xmlns:v="urn:schemas-microsoft-com:vml">
      behavior:url(#default#VML);
    }
 </style>
-<script src="http://gd.google.com/gd/api?file=gdata-core.js&v=1.0"
+<script src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"
     type="text/javascript"></script>
 
 <script src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key=ABQIAAAAVzcu66YGicZvSPDVjflWZRTxMiSd5k_LHO7VcD3heRKw4wCMkhSQvFp9Gj1K3kyGHgRoSeudpyuD8w"
@@ -42,6 +42,9 @@ var markerOverlays = new Array();
 var highlightCircle = null;
 
 var neededColumns = {"Identifier":0, "Address":1};
+
+// Load the Google data JavaScript client library
+google.load("gdata", "1");
 
 // Create a base icon for all of our markers that specifies the
 // shadow, icon dimensions, etc.
@@ -319,11 +322,11 @@ function addTableRow(columnLat, columnLng, label, entryNum, isFound){
   if(isFound) {
     iconIMG.src = "http://gdata-javascript-client.googlecode.com/svn/trunk/" +
                   "samples/spreadsheets/map_maker/" +
-                  "markers_all/green_marker" + number + ".png";
+                  "markers/green_marker" + number + ".png";
   } else { 
     iconIMG.src = "http://gdata-javascript-client.googlecode.com/svn/trunk/" +
                   "samples/spreadsheets/map_maker/" +
-                  "markers_all/red_marker" + number + ".png";
+                  "markers/red_marker" + number + ".png";
   }
   var iconA = document.createElement("A");
   iconA.href = "#bottom";
@@ -379,11 +382,11 @@ function createMarker(point, entryNum, isFound) {
   if(isFound) {
     nIcon.image = "http://gdata-javascript-client.googlecode.com/svn/" +
                   "trunk/samples/spreadsheets/map_maker/" +
-                  + "markers_all/green_marker" + number + ".png";
+                  + "markers/green_marker" + number + ".png";
   } else {
     nIcon.image = "http://gdata-javascript-client.googlecode.com/svn/" +
                   "trunk/samples/spreadsheets/map_maker/" +
-                  + "markers_all/red_marker" + number + ".png";
+                  + "markers/red_marker" + number + ".png";
   }
 
   var identifier = document.getElementById("selectIdentifier").value;
