@@ -1,13 +1,13 @@
 <HTML xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Google Spreadsheet -> Chart Output</title>
+<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw">
+</script>
 <script src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/thirdparty/webfxchart/excanvas.js"
     type="text/javascript"></script>
 <script src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/thirdparty/webfxchart/chart.js"
     type="text/javascript"></script>
 <script src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/thirdparty/webfxchart/canvaschartpainter.js"
-    type="text/javascript"></script>
-<script src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"
     type="text/javascript"></script>
 <link href="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/thirdparty/webfxchart/canvaschart.css"
     rel="stylesheet" type="text/css"/>
@@ -28,8 +28,11 @@
  * limitations under the License.
  */
 
-// Load the Google data JavaScript client library
+/**
+ * Loads the Google data JS Client Library
+ */
 google.load("gdata", "1");
+
 
 function SpreadsheetsChart(div, json, params) {
   this.div = div;

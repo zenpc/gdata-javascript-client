@@ -2,8 +2,8 @@
 <html>
 <head>
 <title>Google Spreadsheets to Chart Wizard</title>
-<script src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"
-    type="text/javascript"></script>
+<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw">
+</script>
 <script type="text/javascript">
 <!--
 /* Copyright (c) 2007 Google Inc.
@@ -21,17 +21,19 @@
  * limitations under the License.
  */
 
+/**
+ * Loads the Google data JS Client Library
+ */
+google.load("gdata", "1");
+
 var ssKey;
 var wsId;
-var columns = Array();
+var columns = [];
 var dataSeriesNum = 0;
 
 var CHART_COLORS = {'Red': 'FF0000','Green': '00FF00','Blue': '0000FF',
     'Yellow': 'FFFF00','Orange': 'FFA500','Purple': '800080'};
 var CHART_TYPES = {'Line': '1','Area': '2','Bar': '3'};
-
-// Load the Google data JavaScript client library
-google.load("gdata", "1");
 
 /**
  * Lists the entries from the spreadsheet feed in a table.
@@ -324,7 +326,7 @@ function chartReload() {
 
   // Iframe preview
   var iframe = document.createElement('iframe');
-  iframe.setAttribute('src', 'customchart.html'
+  iframe.setAttribute('src', 'custom_chart_frame.html'
       + '?ssKey=' + ssKey + '&wsId=' + wsId
       + '&chartWidth=' + chartWidth + '&chartHeight=' + chartHeight
       + '&ds=' + dataSeriesString_Iframe + '&xAxis=' + xAxis 
@@ -594,9 +596,6 @@ var params = {
   'densityX': <span id="p_densityX"></span>,
   'densityY': <span id="p_densityY"></span>
   };
-
-// Load the Google data JavaScript client library
-google.load("gdata", "1");
 
 function SpreadsheetsChart(div, json, params) {
   this.div = div;

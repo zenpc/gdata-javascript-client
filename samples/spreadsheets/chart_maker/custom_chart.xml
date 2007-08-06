@@ -35,8 +35,8 @@ title_url="http://docs.google.com">
     type="text/javascript"></script>
 <script src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/thirdparty/webfxchart/canvaschartpainter.js"
     type="text/javascript"></script>
-<script src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"
-    type="text/javascript"></script>
+pt type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw">
+</script>
 
 <style type="text/css">
 .chart {
@@ -84,11 +84,13 @@ title_url="http://docs.google.com">
  * limitations under the License.
  */
 
+/**
+ * Loads the Google data JS Client Library
+ */
+google.load("gdata", "1");
+
 var prefs = new _IG_Prefs(__MODULE_ID__);
 var msg = new _IG_MiniMessage(__MODULE_ID__,_gel("messageBox"));
-
-// Load the Google data JavaScript client library
-google.load("gdata", "1");
 
 function SpreadsheetsChart(div, json, params) {
   this.div = div;
