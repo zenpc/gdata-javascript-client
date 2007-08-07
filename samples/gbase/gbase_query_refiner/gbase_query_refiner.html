@@ -4,11 +4,8 @@
 <title>Search refinement example</title>
 <link rel="stylesheet" type="text/css"
     href="http://code.google.com/css/dev_docs.css"/>
-<!--<script type="text/javascript" 
-        src="http://gd.google.com/gd/api?file=gdata-core.js&v=1.0"></script>-->
-<script type="text/javascript" 
-        src="http://www.corp.google.com/%7Eryanboyd/js_samples/gdata-core-dev.js"></script>
-        
+<script src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"
+        type="text/javascript"></script>  
 <script type="text/javascript">
 <!--
 /* Copyright (c) 2007 Google Inc.
@@ -43,6 +40,9 @@ var ATTRIBUTES_QUERY_DISPLAY = "attributes_queries_display";
 var SNIPPETS_QUERY_DISPLAY = "snippets_queries_display";
 var ATTRIBUTES_FEED_URL = "http://www.google.com/base/feeds/attributes";
 var SNIPPETS_FEED_URL = "http://www.google.com/base/feeds/snippets";
+
+// Load the Google data JavaScript client library
+google.load("gdata", "1");
 
 /** 
  * Adds a JSON script element which queries Google Base and calls the
