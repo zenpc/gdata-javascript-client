@@ -296,10 +296,12 @@ function cm_handleGDError(e) {
  * and the error handling function to cm_handleGDError.
  */
 function cm_getJSON() {  
-  var service = new GDataGoogleService("wise","gdata-js-sample-geocode");
-  var gquery = new GDataQuery("http://spreadsheets.google.com/feeds/list/" + 
-                              param_ssKey + "/" +  param_wsId + 
-                              "/public/values");
+  var service = new google.gdata.client.GoogleService(
+      "wise","gdata-js-sample-geocode");
+  var gquery = new google.gdata.client.Query(
+      "http://spreadsheets.google.com/feeds/list/" + 
+      param_ssKey + "/" +  param_wsId + 
+      "/public/values");
 
   service.getFeed(gquery.getUri(), cm_loadMapJSON, cm_handleGDError);
 }
