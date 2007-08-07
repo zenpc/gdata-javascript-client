@@ -1,35 +1,41 @@
 <html>
 <head>
 <title>Meeting Notes Sample</title>
-<script type="text/javascript" src="http://www.google.com/jsapi"></script>
 <!--
 <link rel="stylesheet" type="text/css" href="http://code.google.com/css/dev_docs.css"/>
 -->
+
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script>
+  /**
+   * Loads the Google data JS Client Library
+   */
+  google.load("gdata", "1");
+</script>
+
 <script type="text/javascript">
 var EVENT_FEED_URL = 'http://www.google.com/calendar/feeds/default/private/full';
-var SCOPE_URL = 'http://www.google.com/calendar/feeds/';
 var myService;
 var myEventsFeed;
 
 function init() {
 
-  /**
-   * Loads the Google data JS Client Library
-   */
-  google.load("gdata", "1.0");
 
-  var token = google.accounts.user.checkLogin(SCOPE_URL);
+  var token = google.accounts.user.checkLogin(EVENT_FEED_URL);
   google.gdata.util.log('token: "' + token + '"');
 
 
   myService = new google.gdata.calendar.CalendarService('laneCo-meetingBlogger-1');
+
+  //TODO: create a real developer key
+  //myService.setDeveloperKey('internal');
 
   reset();
 
   var eventsButton = document.getElementById("events_button");
   var authButton = document.getElementById("auth_button");
 
-  if (google.accounts.user.checkLogin(SCOPE_URL)) {
+  if (google.accounts.user.checkLogin(EVENT_FEED_URL)) {
     authButton.value = "Logout";
     eventsButton.disabled = false;
   } else {
@@ -39,13 +45,13 @@ function init() {
 }
 
 function authenticateOrLogout(){ 
-  var token = google.accounts.user.checkLogin(SCOPE_URL);
+  var token = google.accounts.user.checkLogin(EVENT_FEED_URL);
   google.gdata.util.log('token: "' + token + '"');
   if (token) {
     google.accounts.user.logout();
     init();
   } else {
-    google.accounts.user.login(SCOPE_URL);
+    google.accounts.user.login(EVENT_FEED_URL);
   }  
 }
 
@@ -59,7 +65,7 @@ function getEvents() {
   query.setMinimumStartTime(google.gdata.DateTime.toIso8601(today));
   query.setMaximumStartTime(google.gdata.DateTime.toIso8601(tomorrow));
   //myService.getEventsFeed(query, handleCalendarEventsFeed, handleGDError);
-  //alert(query.getUri());
+  alert(query.getUri());
   myService.getEventsFeed(query.getUri(), handleCalendarEventsFeed, handleGDError);
 
   // this is working:
@@ -278,7 +284,7 @@ if (myService.authenticator.isAuthenticated(EVENT_FEED_URL)=="") {
 
 <h3>Resources</h3>
 <ul>
-  <li><a href="http://code.google.com/apis/gdata/client-js.html">JavaScript client library</a></li>
+  <li><a href="asdf">JavaScript client library</a></li>
   <li><a href="asdf">Google Calendar data API Overview</a></li>
   <li><a href="asdf">AuthSub documentation</a></li>
 <ul>
