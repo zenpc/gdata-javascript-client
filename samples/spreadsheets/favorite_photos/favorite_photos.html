@@ -1,0 +1,100 @@
+<html>
+<head>
+<title>Google Gadgets Using the Google data JavaScript Client Library</title>
+<link rel="stylesheet" type="text/css" href="http://code.google.com/css/dev_docs.css">
+<style><!--
+.synd {
+  float: right;
+  padding-bottom: 10px;
+}
+.synd table {
+  border-width: 0px;
+  overflow: hidden;
+}
+img.bulletImg {
+  vertical-align: middle;
+}
+--></style>
+</head>
+<body>
+<h2>Google Gadgets Using Google data JavaScript Client Library</h2>
+
+<div class="synd"><script src="http://gmodules.com/ig/ifr?url=favorite_photos.xml&amp;up_title=My%20Favorite%20Photos%20Online&amp;up_ssUrl=http%3A%2F%2Fc4e.spreadsheets.google.com%2Fccc%3Fid%3Do08850623361201175368.1509485631386228504.12641584494436757180.917227424096962710&amp;up_scaleImage=300&amp;up_selectedTab=&amp;synd=open&amp;w=320&amp;h=350&amp;title=__UP_title__&amp;border=%23ffffff%7C3px%2C1px+solid+%23999999&amp;output=js"></script></div>
+<h3>Introduction</h3>
+<p>
+  Here's a Google Gadget that uses the Google data JavaScript client library to read
+  image URLs from a published Google Spreadsheet and render them inside the
+  gadget.  Click on the tabs to see different categories of images.  The first
+  time a tab is selected, a random image from that category is selected and
+  displayed.  Click on &quot;<code>see more</code>&quot; to repeat this process and load
+  another random image.
+</p>
+
+<h3>How It Works</h3>
+<p>
+  Image URLs are listed in a public Google Spreadsheet, all under a single column
+  labeled &quot;<code>Source</code>&quot;.  The spreadsheet can contain multiple worksheets
+  which are used to separate images into categories.  Tabs are created in the gadget
+  for each worksheet and are titled based on the worksheet name.  Click on the gadget
+  title to view this <a href="http://spreadsheets.google.com/pub?key=pSHsr7Q2703oYF1UkL8XyFA">published spreadsheet</a>.
+  You can see the list of image URLs and worksheets used to create tabs and images inside this gadget.
+</p>
+<p>
+  When you <a href="http://docs.google.com">create a new spreadsheet</a>, it opens
+  up the spreadsheet editor at a new location.  The URL at this location contains
+  the unique spreadsheet key and is required by the gadget to identify which spreadsheet to fetch data from.
+</p>
+<p>
+  Here's what the default spreadsheet URL looks like:
+  <pre style="width:450px; overflow-x:scroll; padding-top:5px; padding-bottom:5px;">http://c4e.spreadsheets.google.com/ccc?id=o08850623361201175368.1509485631386228504.12641584494436757180.917227424096962710</pre>
+</p>
+<p>
+  The gadget parses this URL to find the spreadsheet key.  Using the Google data JavaScript Client
+  library, the gadget fetches a list of worksheets and creates a new tab for each one.
+  The first time a tab is selected, the gadget fetches all rows and columns from the worksheet.
+  In this case, each worksheet contains only a single column of image URLs.  A random image
+  URL is selected, preloaded, and displayed in the gadget.
+</p>
+<p>
+  View the gadget <a href="http://www.google.com/ig/modules/favorite_photos.xml">source</a>
+  for a more detailed look on how it works.
+</p>
+
+<h3>To Use</h3>
+<p>
+  You can link any published Google Spreadsheet to this gadget by substituting the
+  default spreadsheet URL with your own.  Here's what you need to do:
+</p>
+<p>
+  <img class="bulletImg" src="http://www.google.com/uds/solutions/wizards/img/1b.gif"><b>Add the Google Gadget:</b><br>
+  <ul>
+    <li><a href="http://fusion.google.com/add?moduleurl=http://www.google.com/ig/modules/favorite_photos.xml">Google Personalize Homepage</a></li>
+    <li><a href="http://gmodules.com/ig/creator?synd=open&url=http://www.google.com/ig/modules/favorite_photos.xml">Google Gadgets For Your Webpage</a></li>
+  </ul>
+</p>
+
+<p><img class="bulletImg" src="http://www.google.com/uds/solutions/wizards/img/2b.gif"><b>Create a spreadsheet:</b></p>
+<p>
+  Create a new <a href="http://docs.google.com">Google Spreadsheet</a> with a single
+  column of image URLs.  If you want multiple tabs in your gadget, create multiple worksheets.
+  View this <a href="http://spreadsheets.google.com/pub?key=pfMX-JDVnx46mrOPJs2PbdQ">published spreadsheet</a>
+  for reference.
+</p>
+
+<p><img class="bulletImg" src="http://www.google.com/uds/solutions/wizards/img/3b.gif"><b>Replace default spreadsheet URL in gadget:</b></p>
+<p>
+  Publish your spreadsheet and replace the gadget's &quot;<code>Spreadsheet URL</code>&quot; user preference with yours.
+</p>
+
+<h3>Resources:</h3>
+<p>
+  <ul>
+    <li><a href="http://www.google.com/apis/gadgets/">Google Gadgets API</a></li>
+    <li><a href="http://code.google.com/apis/gdata/client-js.html">Google data JavaScript client library</a></li>
+    <li><a href="http://code.google.com/apis/spreadsheets/overview.html">Google Spreadsheets Data API</a></li>
+    <li><a href="http://code.google.com/apis/gdata/json.html">Using JSON with Google Data APIs</a></li>
+    <li><a href="http://code.google.com/apis/gdata/samples.html#JSON">Google Data JSON Samples</a></li>
+  </ul>
+</p>
+</body>
+</html>

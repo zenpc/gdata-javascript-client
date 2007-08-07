@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <ModulePrefs title="__UP_title__"
+    title_url="http://spreadsheets.google.com/pub?key=pSHsr7Q2703oYF1UkL8XyFA"
+    directory_title="My Favorite Photos Online"
+    description="Save the URLs of your favorite images online into a Google
+      Spreadsheet and view them through this gadget.  Each worksheet creates
+      a separate tab.  Click on the title to see what the spreadsheet looks 
+      like."
+    author="Daniel L."
+    author_email="daniel.feedback+favoritephotos@gmail.com"
+    author_location="Mountain View, CA"
+    author_affiliation="Google, Inc."
+    screenshot="/ig/modules/favorite_photos.png"
+    thumbnail="/ig/modules/favorite_photos-thm.png"
+    width="320"
+    height="350"
+    scrolling="false"
+    scaling="false"
+    singleton="false">
+    <Require feature="tabs"/>
+    <Require feature="setprefs"/>
+    <Require feature="dynamic-height"/>
+    <Require feature="multisize"/>
+  </ModulePrefs>
+  <UserPref name="title" 
+      display_name="Gadget Title" 
+      datatype="string" 
+      required="true" 
+      default_value="My Favorite Photos Online"/>
+  <UserPref name="ssUrl" 
+      display_name="Spreadsheet URL" 
+      datatype="string" 
+      required="true" 
+      default_value="http://spreadsheets.google.com/ccc?id=o08850623361201175368.1509485631386228504.12641584494436757180.917227424096962710"/>
+  <UserPref name="height" 
+      display_name="Gadget Height" 
+      datatype="enum" 
+      default_value="300">
+    <EnumValue value="200"/>
+    <EnumValue value="250"/>
+    <EnumValue value="300"/>
+    <EnumValue value="350"/>
+    <EnumValue value="400"/>
+    <EnumValue value="450"/>
+  </UserPref>
+  <UserPref name="selectedTab" datatype="hidden"/>
+  <Content type="html"><![CDATA[
+  <style><!--
+    .tablib_table__MODULE_ID__ {
+      font-size: 0.7em;
+    }
+
+    .tabContent {
+      text-align: center;
+      font-size: 0.8em;
+      padding-top: 1px;
+      padding-bottom: 2px;
+    }
+    .tabContent .loadMsg {
+      margin-top: 15px;
+      font-style: italic;
+      color: #676767;
+    }
+    .tabContent a, .tabContent a:visited {
+      color: #0000cc;
+      text-decoration: none;
+    }
+
+    #errorContainer {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 0.8em;
+      font-weight: bold;
+      color: #cc0000;
+      display: none;
+    }
+  --></style>
+  <div id="errorContainer"></div>
+
+  <!-- REQUIRED: Import GData JavaScript Client Library -->
+  <script src="http://www.google.com/jsapi"></script>
+
+  // Loads the Google data JavaScript client library
+  google.load("gdata", "1");
+
+  <script>
+    /* Copyright (c) 2007 Google Inc.
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *     http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     */
+     
+    // Global Favorite Photos object
+    function FP () {
+      this.gservice = new google.gdata.client.GoogleService("wise", 
+          "gadget-spreadsheet-demo");
+      this.prefs = new _IG_Prefs();
+      this.tabs = new _IG_Tabs();
+      this.msize = new _IG_MultiSize();
+      this.ssKey = getSpreadsheetKey(this.prefs.getString("ssUrl"));
+      this.errorContainer = _gel('errorContainer');
+    }
+  
+    /**
+      * Get list of worksheets and create a tab for each one
+      */
+    function init() {
+      var query = new google.gdata.client.Query([
+          "http://spreadsheets.google.com/feeds/worksheets/",
+          FP.ssKey,
+          "/public/values"].join(''));
+      FP.gservice.getFeed(
+          query.getUri(),
+          function(feed) {
+            if (feed == null || typeof feed == "undefined") {
+              onerrorCallback(new Error(0,
+                  "Feed response is null or undefined.  " +
+                  "Verify that your spreadsheet URL is valid."));
+              return;
+            }
+
+            for (var n = 0; n < feed.feed.entry.length; ++n) {
+              var entry = feed.feed.entry[n];
+              var wsKey = entry.id.$t.substring(entry.id.$t.lastIndexOf('/')
+                  + 1);
+              FP.tabs.addDynamicTab(entry.title.$t,
+                                  _IG_Callback(tabCallback, wsKey));
+            }
+          },
+          onerrorCallback);
+
+      // Resize gadget
+      _IG_AdjustIFrameHeight(FP.prefs.getInt('height'));
+    }
+
+    /**
+      * Whenever a tab is clicked, query the specified worksheet
+      * and load a random image into the tab container.
+      * @param {String} id The DOM id of the tab content container
+      * @param {String} wsKey The worksheet key used to fetch the feed
+      */
+    function tabCallback(id, wsKey) {
+      var div = _gel(id);
+      div.className = "tabContent";
+
+      // Only load new images the first time a tab is selected
+      if (div.getElementsByTagName("img").length == 0) {
+        // Show loading message while fetching feed
+        div.innerHTML = '<div class="loadMsg">Fetching...</div>';
+
+        // Query worksheet data
+        var url = ["http://spreadsheets.google.com/feeds/list/",
+            FP.ssKey,
+            "/",
+            wsKey,
+            "/public/values"].join('');
+        var query = new google.gdata.client.Query(url);
+        FP.gservice.getFeed(query.getUri(),
+                        loadImageFromFeedGenerator(div),
+                        onerrorCallback);
+      }
+    }
+
+    /**
+      * Returns the callback function to process the worksheet feed response.
+      * @param {Element} container The tab container HTML element.
+      * @return {Function} The callback function handling the feed response.
+      */
+    function loadImageFromFeedGenerator(container) {
+      return function(feed) {
+        if (feed == null || typeof feed == "undefined") {
+          onerrorCallback(new Error(0,
+              "Feed response is null or undefined.  " +
+              "Verify that your spreadsheet URL is valid."));
+          return;
+        }
+        loadImageFromFeed(feed, container);
+      }
+    }
+
+    /**
+      * Select random image URL from feed and load into tab container.
+      * Wait for image to load before inserting into the DOM.
+      * @param {Object} feed The feed returned as a JSON object
+      * @param {Element} The tab container HTML element.
+      */
+    function loadImageFromFeed(feed, container) {
+      // Check if feed is empty
+      if (feed.feed.entry == null) {
+        container.innerHTML = '<div class="loadMsg">No entries</div>';
+        return;
+      }
+      
+      // Show loading message while image loads
+      container.innerHTML = '<div class="loadMsg">Loading...</div>';
+
+      // Generate a random index based on the # of feed entries
+      var rand = Math.floor((Math.random() * Math.pow(10, 4)) %
+                            feed.feed.entry.length);
+      var img = _IG_GetImage(feed.feed.entry[rand].title.$t);
+      img.onload = function() {
+        // Scale image to fit container.  We know the dimensions of the image
+        // after it loads.  Take the larget and stretch it accordingly.
+        var totalWidth = FP.msize.getWidth();
+        var totalHeight = FP.msize.getHeight() - 
+            FP.tabs.getHeaderContainer().offsetHeight - 15;
+        var totalRatio = totalWidth / totalHeight;
+        var imageRatio = img.width / img.height;
+        var stretchRatio = 1;
+        var offset = 3;
+        if (imageRatio > totalRatio) {
+          // Stretch image width to fit container width
+          stretchRatio = (totalWidth - offset) / img.width;
+        } else {
+          // Stretch image height to fit container height
+          stretchRatio = (totalHeight - offset) / img.height;
+        }
+        img.width *= stretchRatio;
+        img.height *= stretchRatio;
+
+        // Hide loading message before insert imaging
+        container.innerHTML = "";
+        container.appendChild(img);
+
+        // Create 'see more' link
+        var div = document.createElement("div");
+        var moreLink = document.createElement("a");
+        moreLink.href = "javascript:void(0);"
+        moreLink.onclick = function() {
+          loadImageFromFeed(feed, container);
+        }
+        moreLink.innerHTML = "&laquo; see more &raquo;";
+        div.appendChild(moreLink);
+        container.appendChild(div);
+      };
+    }
+
+    /**
+      * Handle errors thrown when fetching feeds and display to user
+      * @param {Object} error The Error object thrown
+      */
+    function onerrorCallback(error) {
+      FP.errorContainer.innerHTML = error.message;
+      FP.errorContainer.style.display = "block";
+    }
+
+    /**
+      * Parse the URL querystring and return the spreadsheet key which is
+      * found by searching for the 'id' attribute.
+      * @param {String} url The spreadsheet URL containing the key ID
+      */
+    function getSpreadsheetKey(url) {
+      var sep = url.indexOf('?');
+      var pairs = url.substring(sep + 1).split("&");
+      for (var n = 0; n < pairs.length; ++n) {
+        var pos = pairs[n].indexOf('=');
+        var name = pairs[n].substring(0, pos);
+        if (name == "id") {
+          var value = pairs[n].substring(pos + 1);
+          return value.substring(0, 
+              value.indexOf('.', 
+              value.indexOf('.') + 1));
+        }
+      }
+      return "";
+    }
+
+    var FP = new FP();
+    _IG_RegisterOnloadHandler(init);
+  </script>
+  ]]></Content>
+</Module>
