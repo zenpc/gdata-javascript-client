@@ -9,8 +9,7 @@ xmlns:v="urn:schemas-microsoft-com:vml">
 </style>
 <script src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"
     type="text/javascript"></script>
-
-<script src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key=ABQIAAAAVzcu66YGicZvSPDVjflWZRTxMiSd5k_LHO7VcD3heRKw4wCMkhSQvFp9Gj1K3kyGHgRoSeudpyuD8w"
+<script src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key=ABQIAAAAjU0EJWnWPMv7oQ-jjS7dYxTZdFmpiU8vv3PBIA-hr88t-5BzzxRjYs3uMiidwWJwLwsUGgqW43vpAQ"
     type="text/javascript"></script>
 
 <script>
@@ -42,9 +41,6 @@ var markerOverlays = new Array();
 var highlightCircle = null;
 
 var neededColumns = {"Identifier":0, "Address":1};
-
-// Load the Google data JavaScript client library
-google.load("gdata", "1");
 
 // Create a base icon for all of our markers that specifies the
 // shadow, icon dimensions, etc.
@@ -320,13 +316,13 @@ function addTableRow(columnLat, columnLng, label, entryNum, isFound){
   iconIMG.border = "0";
   var number = entryNum + 1;
   if(isFound) {
-    iconIMG.src = "http://gdata-javascript-client.googlecode.com/svn/trunk/" +
-                  "samples/spreadsheets/map_maker/" +
-                  "markers/green_marker" + number + ".png";
+    iconIMG.src = "http://gdata-javascript-client.googlecode.com/svn/trunk/" 
+                  + "samples/spreadsheets/map_maker/"
+                  + "markers/green_marker" + number + ".png";
   } else { 
-    iconIMG.src = "http://gdata-javascript-client.googlecode.com/svn/trunk/" +
-                  "samples/spreadsheets/map_maker/" +
-                  "markers/red_marker" + number + ".png";
+    iconIMG.src = "http://gdata-javascript-client.googlecode.com/svn/trunk/" 
+                  + "samples/spreadsheets/map_maker/"
+                  + "markers/red_marker" + number + ".png";
   }
   var iconA = document.createElement("A");
   iconA.href = "#bottom";
@@ -380,12 +376,12 @@ function createMarker(point, entryNum, isFound) {
   var nIcon = new GIcon(baseIcon);
   var number = entryNum + 1;
   if(isFound) {
-    nIcon.image = "http://gdata-javascript-client.googlecode.com/svn/" +
-                  "trunk/samples/spreadsheets/map_maker/" +
+    nIcon.image = "http://gdata-javascript-client.googlecode.com/svn/trunk/" 
+                  + "samples/spreadsheets/map_maker/"
                   + "markers/green_marker" + number + ".png";
   } else {
-    nIcon.image = "http://gdata-javascript-client.googlecode.com/svn/" +
-                  "trunk/samples/spreadsheets/map_maker/" +
+    nIcon.image = "http://gdata-javascript-client.googlecode.com/svn/trunk/" 
+                  + "samples/spreadsheets/map_maker/"
                   + "markers/red_marker" + number + ".png";
   }
 
@@ -508,11 +504,11 @@ function getJSON(query) {
   var okBUTTON = document.getElementById('okBUTTON');
   okBUTTON.disabled = 'true';
 
-  var service = new GDataGoogleService('wise','gdata-js-sample-geocode');
-  var gquery = new GDataQuery('http://spreadsheets.google.com/feeds/list/' + 
-                              document.getElementById("ssKey").value + '/' +  
-                              document.getElementById("wsId").value + 
-                              '/public/values');
+  var service = new google.gdata.client.GoogleService('wise','gdata-js-sample-geocode');
+  var gquery = new google.gdata.client.Query(
+    'http://spreadsheets.google.com/feeds/list/' + 
+    document.getElementById("ssKey").value + '/' +  
+    document.getElementById("wsId").value + '/public/values');
   service.getFeed(gquery.getUri(), loadWorksheetJSON, handleGDError);
 }
 

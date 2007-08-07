@@ -17,8 +17,6 @@ body {
 </style>
 <script src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"
     type="text/javascript"></script>
-<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAVzcu66YGicZvSPDVjflWZRTxMiSd5k_LHO7VcD3heRKw4wCMkhSQvFp9Gj1K3kyGHgRoSeudpyuD8w" 
-    type="text/javascript"></script>
 <script>
 /* Copyright (c) 2007 Google Inc.
  *
@@ -36,8 +34,6 @@ body {
  */
 
 var map;
-var worksheetJSON;
-var entries;
 var mapKey;
 var neededColumns = {"Title": "", "Latitude": "", 
                      "Longitude": "", "Description": "", 
@@ -80,10 +76,10 @@ function getParamsURL(){
 function generateKey() {
   var siteUrl = document.getElementById("siteURL").value;
   var targetPage = "http://www.google.com/maps/api_key";
-  var landingPage = "http://gdata-javascript-client.googlecode.com/svn/" + 
-                    "trunk/samples/spreadsheets/map_maker/" +
-                    "makecustommap.html" + "?generated=1" +
-                    getParamsURL();
+  var landingPage = "http://gdata-javascript-client.googlecode.com/svn/trunk/"
+                    + "samples/make_maker/make_custom_map.html" 
+                    + "?generated=1"
+                    + getParamsURL();
 
   var redirPage = targetPage + "?q=" + encodeURIComponent(landingPage) + 
                   "&client=google-maps";
@@ -99,8 +95,6 @@ function generateKey() {
  */
 function loadWorksheetJSON(json) {
   removeOldResults();
-
-  worksheetJSON = json;
 
   var p = document.createElement('p');
   p.setAttribute('id', 'output');
@@ -245,14 +239,19 @@ function updateMapFrame() {
   var wsId = document.getElementById("wsId").value;
   var mapWidth = document.getElementById("mapWidth").value;
   var mapHeight = document.getElementById("mapHeight").value;
+  var useSidebar = document.getElementById("useSidebar").checked;
+  var iconType = document.getElementById("iconType").value;
+  var iconOverType = document.getElementById("iconOverType").value;
 
-  var frameURL = "custommap.html?";
+  var frameURL = "custommap.htm?";
   frameURL += "ssKey=" + ssKey + "&wsId=" + wsId;
   frameURL += "&titleColumn=" + mapTitle + "&descriptionColumn=" + mapDescrip;
   frameURL += "&latColumn=" + mapLat + "&lngColumn=" + mapLng;
   if(mapRank != "-none selected-") frameURL += "&rankColumn=" + mapRank;
-  frameURL += "&useSidebar=true";
+  frameURL += "&useSidebar=" + useSidebar;
   frameURL += "&mapWidth=" + mapWidth + "&mapHeight=" + mapHeight;
+  frameURL += "&iconType=" + iconType + "&iconOverType=" + iconOverType;
+
   var iframeWidth = parseInt(mapWidth) + 200;
   var iframeHeight = parseInt(mapHeight) + 100;
 
@@ -274,7 +273,27 @@ function updateMapFrame() {
   document.getElementById('p_mapWidth').innerHTML = mapWidth;
   document.getElementById('p_mapHeight').innerHTML = mapHeight;
   document.getElementById('p_sidebarHeight').innerHTML = mapHeight;
+  document.getElementById('p_iconType').innerHTML = "\"" + iconType + "\"";
+  document.getElementById('p_iconOverType').innerHTML = "\"" + iconOverType + "\"";
 }
+
+/**
+ * Adds HTML header/footer to code, if option checked.
+ */
+function updateCode() {
+  if (document.getElementById('includeHeaderFooter').checked) {
+    document.getElementById('p_htmlHeader').innerHTML = 
+       '&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;' +
+       '&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;' +
+       '&lt;head&gt; &lt;/head&gt;' +
+       '&lt;body&gt;';
+    document.getElementById('p_htmlFooter').innerHTML =
+       '&lt;/body&gt; &lt;/html&gt;';
+  } else {
+    document.getElementById('p_htmlHeader').innerHTML = "";
+    document.getElementById('p_htmlFooter').innerHTML = "";
+  }
+}  
 
 /**
  * Removes the output generated from the previous result.
@@ -319,11 +338,12 @@ function getJSON(query) {
 
   // Retrieve the JSON feed.
 
-  var service = new GDataGoogleService('wise','gdata-js-sample-geocode');
-  var gquery = new GDataQuery('http://spreadsheets.google.com/feeds/list/' + 
-                              document.getElementById("ssKey").value + '/' +  
-                              document.getElementById("wsId").value + 
-                              '/public/values');
+  var service = new
+  google.gdata.client.GoogleService('wise','gdata-js-sample-map');
+  var gquery = new google.gdata.client.Query(
+    'http://spreadsheets.google.com/feeds/list/' + 
+    document.getElementById("ssKey").value + '/' +  
+    document.getElementById("wsId").value + '/public/values');
   service.getFeed(gquery.getUri(), loadWorksheetJSON, handleGDError);
 }
 
@@ -465,6 +485,39 @@ Your Spreadsheet" wizard.</em>
   <td style="border:0px">Height:</td>
   <td style="border:0px"><input name="mapHeight" id="mapHeight" size="3" value="450" type="text"></td>
  </tr>
+<tr>
+  <td style="border:0px">Include sidebar?</td>
+
+  <td style="border:0px"><input name="useSidebar" id="useSidebar" type="checkbox" CHECKED></td>
+ </tr>
+ <tr>
+
+  <td style="border:0px">Marker color:</td>
+  <td style="border:0px">
+    <select id="iconType">
+      <option value="red">red</option>
+      <option value="orange">orange</option>
+      <option value="green" SELECTED>green</option>
+      <option value="pink">pink</option>
+
+      <option value="blue">blue</option>
+    </select>
+   </td> 
+ </tr>
+ <tr>
+  <td style="border:0px">Highlighted marker color:</td>
+  <td style="border:0px">
+    <select id="iconOverType">
+
+      <option value="red">red</option>
+      <option value="orange" SELECTED>orange</option>
+      <option value="green">green</option>
+      <option value="pink">pink</option>
+      <option value="blue">blue</option>
+    </select>
+
+   </td> 
+ </tr>
  <tr>
   <td style="border:0px"></td>
   <td style="border:0px"><input type="button" onclick="updateMapFrame();" value="Update Map"/></td>
@@ -492,10 +545,15 @@ By using these APIs you are agreeing to the Maps API <a href="http://www.google.
 <p>
 <strong>Site URL:</strong><input type="text" id="siteURL" value="http://"/>
 <input type="button" onclick="generateKey();" value="Generate Key"/>
+<br/><br/>
+<strong>Check this box if you'd like an HTML header/footer generated: </strong> 
+<input type="checkbox" id="includeHeaderFooter" onclick="updateCode()"/>
 </p>
 
 <div id="generatedCodeDIV" style="display:none">
 <pre class="code" id="gHeadCode" style="width: 700px; overflow-x: scroll;">
+<span id="p_htmlHeader"></span>
+
 &lt;!-- ++Begin GSpreadsheets Map Wizard Generated Code++ --&gt;
 
 &lt;div style="width:<span id="p_divWidth"></span>px; font-family:Arial, 
@@ -537,6 +595,8 @@ var param_descriptionColumn = <span id="p_descriptionColumn"></span>;
 var param_latColumn = <span id="p_latColumn"></span>;
 var param_lngColumn = <span id="p_lngColumn"></span>;
 var param_rankColumn = <span id="p_rankColumn"></span>;
+var param_iconType = <span id="p_iconType"></span>;
+var param_iconOverType = <span id="p_iconOverType"></span>;
 
 // Load the Google data JavaScript client library
 google.load("gdata", "1");
@@ -620,7 +680,7 @@ function cm_loadMapJSON(json) {
               + "&lt;/strong&gt;";
       var label = entry["gsx$"+param_titleColumn].$t;
       var rank = 0;
-      if(usingRank && entry["gsx$" + param_rankColumn]) {
+      if(usingRank &amp;&amp; entry["gsx$" + param_rankColumn]) {
         rank = parseInt(entry["gsx$"+param_rankColumn].$t);
       }
       if(entry["gsx$" + param_descriptionColumn]) {
@@ -668,13 +728,18 @@ function cm_createMarker(point, title, html, rank) {
   var markerOpts = {};
   var nIcon = new GIcon(cm_baseIcon);
 
-  if(rank &gt; 0 && rank &lt; 100){
-    nIcon.image = "http://gdata-javascript-client.googlecode.com/svn/trunk/" +
-        "samples/spreadsheets/map_maker/markers/blue_marker" + 
-        rank + ".png";
+  if(rank &gt; 0 &amp;&amp; rank &lt; 100) {
+    nIcon.imageOut = "http://gmaps-samples.googlecode.com/svn/trunk/" +
+        "markers/" + param_iconType + "/marker" + rank + ".png";
+    nIcon.imageOver = "http://gmaps-samples.googlecode.com/svn/trunk/" +
+        "markers/" + param_iconOverType + "/marker" + rank + ".png";
+    nIcon.image = nIcon.imageOut; 
   } else { 
-    nIcon.image = "http://gdata-javascript-client.googlecode.com/svn/trunk/" +
-        "samples/spreadsheets/map_maker/markers/blue_blank.png";
+    nIcon.imageOut = "http://gmaps-samples.googlecode.com/svn/trunk/" +
+        "markers/" + param_iconType + "/blank.png";
+    nIcon.imageOver = "http://gmaps-samples.googlecode.com/svn/trunk/" +
+        "markers/" + param_iconOverType + "/blank.png";
+    nIcon.image = nIcon.imageOut;
   }
 
   markerOpts.icon = nIcon;
@@ -683,6 +748,18 @@ function cm_createMarker(point, title, html, rank) {
 	
   GEvent.addListener(marker, "click", function() {
     marker.openInfoWindowHtml(html);
+  });
+  GEvent.addListener(marker, "mouseover", function() {
+    marker.setImage(marker.getIcon().imageOver);
+  });
+  GEvent.addListener(marker, "mouseout", function() {
+    marker.setImage(marker.getIcon().imageOut);
+  });
+  GEvent.addListener(marker, "infowindowopen", function() {
+    marker.setImage(marker.getIcon().imageOver);
+  });
+  GEvent.addListener(marker, "infowindowclose", function() {
+    marker.setImage(marker.getIcon().imageOut);
   });
   return marker;
 }
@@ -711,10 +788,11 @@ function cm_getJSON() {
   service.getFeed(gquery.getUri(), cm_loadMapJSON, cm_handleGDError);
 }
 
-cm_load();
+setTimeout('cm_load()', 500);
 
 //]]&gt;
 &lt;/script&gt;
+<span id="p_htmlFooter"></span>
 </pre>
 </div>
 
