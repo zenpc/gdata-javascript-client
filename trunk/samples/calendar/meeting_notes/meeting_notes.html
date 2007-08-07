@@ -1,0 +1,293 @@
+<html>
+<head>
+<title>Meeting Notes Sample</title>
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<!--
+<link rel="stylesheet" type="text/css" href="http://code.google.com/css/dev_docs.css"/>
+-->
+<script type="text/javascript">
+var EVENT_FEED_URL = 'http://www.google.com/calendar/feeds/default/private/full';
+var SCOPE_URL = 'http://www.google.com/calendar/feeds/';
+var myService;
+var myEventsFeed;
+
+function init() {
+
+  /**
+   * Loads the Google data JS Client Library
+   */
+  google.load("gdata", "1.0");
+
+  var token = google.accounts.user.checkLogin(SCOPE_URL);
+  google.gdata.util.log('token: "' + token + '"');
+
+
+  myService = new google.gdata.calendar.CalendarService('laneCo-meetingBlogger-1');
+
+  reset();
+
+  var eventsButton = document.getElementById("events_button");
+  var authButton = document.getElementById("auth_button");
+
+  if (google.accounts.user.checkLogin(SCOPE_URL)) {
+    authButton.value = "Logout";
+    eventsButton.disabled = false;
+  } else {
+    authButton.value = "Authenticate";
+    eventsButton.disabled = true;
+  } 
+}
+
+function authenticateOrLogout(){ 
+  var token = google.accounts.user.checkLogin(SCOPE_URL);
+  google.gdata.util.log('token: "' + token + '"');
+  if (token) {
+    google.accounts.user.logout();
+    init();
+  } else {
+    google.accounts.user.login(SCOPE_URL);
+  }  
+}
+
+function getEvents() {
+  reset();
+  var query = new google.gdata.calendar.CalendarEventQuery(EVENT_FEED_URL);
+  var today = new google.gdata.DateTime(new Date(), true);
+  var tomorrowDate = new Date();
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1)
+  var tomorrow = new google.gdata.DateTime(tomorrowDate, true);
+  query.setMinimumStartTime(google.gdata.DateTime.toIso8601(today));
+  query.setMaximumStartTime(google.gdata.DateTime.toIso8601(tomorrow));
+  //myService.getEventsFeed(query, handleCalendarEventsFeed, handleGDError);
+  //alert(query.getUri());
+  myService.getEventsFeed(query.getUri(), handleCalendarEventsFeed, handleGDError);
+
+  // this is working:
+  //myService.getEventsFeed(EVENT_FEED_URL, handleCalendarEventsFeed, handleGDError);
+}
+
+
+function handleCalendarEventsFeed(myResultsFeedRoot) {
+  event_list = document.getElementById("event_list")
+  event_list.onchange=loadEvent;
+  event_list.disabled=false; 
+  event_list.options[event_list.selectedIndex].disabled=true; 
+  event_list.options[event_list.selectedIndex].text="Select...";
+  
+  myEventsFeed = myResultsFeedRoot.feed;
+  events = myEventsFeed.getEntries();
+  for (var i = 0; i < events.length; i++) {
+    var option = document.createElement("option");
+    eventTitle = events[i].getTitle().getText();
+    option.value = i;
+    //option.value = events[i].getSelfLink().getHref();
+    option.appendChild(document.createTextNode(eventTitle));
+    event_list.appendChild(option);
+  }
+}
+
+function loadEvent() {
+  var saveButton = document.getElementById("save_button");
+  saveButton.disabled = false;
+
+  var event_list = document.getElementById("event_list");
+  var event_index = event_list.options[event_list.selectedIndex].value;
+  var event = myEventsFeed.getEntries()[event_index]
+
+  var title = document.getElementById("title");
+  title.value = event.getTitle().getText();
+
+  var date = document.getElementById("date");
+  date.value = event.getTimes()[0].getStartTime().getDate();
+
+  var theLocation = document.getElementById("theLocation");
+  theLocation.value = event.getLocations()[0].getValueString();
+  if (theLocation.value == "undefined") {
+    theLocation.value="";
+  }
+
+  //TODO: make these checkboxes
+  var attendeesDiv = document.getElementById("attendees_div");
+  while (attendeesDiv.hasChildNodes()) {
+    attendeesDiv.removeChild(attendeesDiv.firstChild);
+  }
+
+  var participants = event.getParticipants();
+  for (var i = 0; i < participants.length; i++) {
+    var element = document.createElement("div");
+    element.innerHTML = participants[i].getEmail();
+    attendeesDiv.appendChild(element);
+  }
+  
+  var notes = document.getElementById("notes");
+  notes.value = event.getContent().getText();
+  if (notes.value == "undefined") {
+    notes.value = "";
+  }
+}
+
+function saveEvent() {
+  var event_list = document.getElementById("event_list");
+  var event_index = event_list.options[event_list.selectedIndex].value;
+  var event = myEventsFeed.getEntries()[event_index]
+
+  var title = document.getElementById("title").value;
+  event.getTitle().setText(title);
+  
+  var date = new Date(document.getElementById("date").value);
+  event.setTimes(null);
+  var when = new google.gdata.When();
+  when.setStartTime(date);
+  when.setEndTime(date); 
+  event.addTime(when);
+  
+  var theLocation = document.getElementById("theLocation").value;
+  event.getLocations()[0].setValueString(theLocation);
+  
+  var notes = document.getElementById("notes").value;
+  event.getContent().setText(notes);  
+
+  event.updateEntry(alertSaved, handleGDError);
+}
+
+function alertSaved() {
+  alert("Your event has been saved.");
+}
+
+function handleGDError(e)
+{
+  alert(e);
+  alert(e.cause ? e.cause.statusText : e.message);
+}
+
+function reset() {
+  var saveButton = document.getElementById("save_button");
+  saveButton.disabled = true;
+
+  var eventList = document.getElementById("event_list"); 
+  eventList.options[0].disabled=false; 
+  eventList.options[0].text="Waiting...";
+  while (eventList.length>1) {
+     eventList.remove(1);
+  }
+  eventList.disabled = true;
+  
+  document.getElementById("title").value="";
+  document.getElementById("date").value="";
+  document.getElementById("theLocation").value="";
+  var attendees_div = document.getElementById("attendees_div");
+  while (attendees_div.hasChildNodes()) {
+    attendees_div.removeChild(attendees_div.firstChild);
+  }
+  document.getElementById("notes").value="";
+}
+//]]>
+</script>
+
+</head>
+
+<body onload="init()">
+<table>
+<tr>
+<td style="padding-right:20px;vertical-align:top;">
+
+<h2>Sample using the Google data JavaScript Client Library with Google Calendar</h2>
+
+<h3>Introduction</h3>
+<p>Here's a simple application that you could use to record meeting notes in Google Calendar.  The sample allows you to view today's meetings and select one to take notes for.  When you're done you can save the information back to Google Calendar.</p>
+
+<p>To use the application, first click the "Authenticate" button and click the "Grant access" button on the page that follows.  You'll be redirected back to this page and the "Get Today's Events" button will be enabled.  Clicking this button sends a date range query to Google Calendar and populates the drop down menu with the results.</p>
+
+<p>When you select an event from the drop down menu, the text fields will be populated with the event data, and a list of the event's attendees will be displayed.  You can edit any of the fields in textboxes, and then click the 'Save to Google Calendar' button to store the updated event.</p>
+
+<p>To revoke access to your calendar information, click the Logout button at any time.</p>
+
+</td>
+<td style="vertical-align:top">
+<div style="height:auto;background-color: rgb(158,200,255);text-align:center;">
+<input id="auth_button" type="button" value="Authenticate" onclick="authenticateOrLogout()" style="margin:5px 0px 5px 0px;"/>
+<input id="events_button" type="button" value="Get Today's Events" onclick="getEvents()" style="margin:5px 0px 5px 0px;"/>
+
+  <div id="dropdown">
+    Select a meeting to take notes for:
+    <select id="event_list" style="width:120px" disabled="disabled">
+      <option>Waiting...</option>
+    </select>
+  </div>
+
+  <div id="event_table">
+    <table style="background-color: rgb(195, 217, 255);margin: 5px 10px 0px 10px;padding: 5px 5px 5px 5px">
+      <tr>
+        <td>Title:</td>
+        <td><input id="title" type="text" style="width:100%"</td>
+      </tr>
+      <tr>
+        <td>Date:</td>
+        <td><input id="date" type="text" style="width:100%"/></td>
+      </tr>
+      <tr>
+        <td>Location:</td>
+        <td><input id="theLocation" type="text" style="width:100%"/></td>
+      </tr>
+      <tr>
+        <td>Attendees:</td>
+        <td><div id="attendees_div"></div></td>
+      </tr>
+      <tr>
+        <td style="vertical-align:top">Notes:</td> 
+        <td><textarea id="notes" cols="40" rows="10"></textarea></td>
+      </tr>
+    </table>
+    <input id="save_button" type="button" value="Save to Google Calendar" onclick="saveEvent()" style="margin:5px 0px 5px 0px;"/>
+  </div>
+</div>
+</td>
+</tr>
+<tr>
+  <td colspan="2">
+
+<h3>How it works</h3>
+<p>This sample demonstrates how to use the object model that the JavaScript client library provides for working with Google Calendar data.  To use the JavaScript client library and the Google Calendar object model, include the following script tags in your source:</p>
+<pre>
+TODO: Figure out what JS files the need.
+</pre>
+<h4>Authentication</h4>
+<p>When the page first loads, the <code>init</code> function creates a <code>CalendarService</code> object and enables authentication.  This sample uses <a href="asdf">AuthSub</a> for authentication, which will redirect a user back to this page after verifying user credentials so the <code>init</code> function also checks to see if the <code>CalendarService</code> has been authenticated.</p>
+<pre>
+myService = new google.gdata.calendar.CalendarService('laneCo-meetingBlogger-1');
+myService.setDeveloperKey('internal');
+myService.setAuthenticationRequired(true);
+...
+if (myService.authenticator.isAuthenticated(EVENT_FEED_URL)=="") {
+...
+} 
+</pre> 
+<p>Since authentication is required, the <code>CalendarService</code> will automatically redirect the user to the AuthSub login page before requesting any data.  When the 'Authenticate' button is clicked, the <code>CalendarService</code> requests the default event feed.  This sets the AuthSub scope to <code>http://www.google.com/calendar/feeds/default/private/full</code> which will grant access to the event feed as well as the edit link of the event entries (which we'll need to save the updated event information).</p>
+
+<h4>Getting the list of events</h4>
+<p>When the 'Get Today's Events' button is clicked, the <code>getEvents</code> method uses a <code>CalendarEventQuery</code> to submit a date range query via the <code>getEventsFeed</code> method.</p>
+<pre></pre>
+<p>When the feed is returned, the <code>handleCalendarEventsFeed</code> iterates through the events, populating the drop down menu.</p>
+<pre>
+</pre>
+
+<h4>Saving the updated event information</h4>
+<p>The <code>saveEvent</code> method grabs the data from the various text input boxes and stores it in the selected <code>CalendarEventEntry</code> object.  The <code>updateEntry</code> method saves the information and calls the <code>alertSaved</code> method on success.</p>
+<pre>
+</pre>
+
+<h3>Resources</h3>
+<ul>
+  <li><a href="http://code.google.com/apis/gdata/client-js.html">JavaScript client library</a></li>
+  <li><a href="asdf">Google Calendar data API Overview</a></li>
+  <li><a href="asdf">AuthSub documentation</a></li>
+<ul>
+  </td>
+<tr>
+</table>
+
+  TEMP: <img src='Logo_25wht.gif' />
+
+</body>
+
+</html>

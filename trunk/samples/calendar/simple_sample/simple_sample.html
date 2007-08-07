@@ -1,8 +1,8 @@
 <html>
 <head>
-<title>Sample Using the GData JS Client Library</title>
+<title>Sample using the Google data JavaScript client library</title>
 <link rel="stylesheet" type="text/css" href="http://code.google.com/css/dev_docs.css">
-<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"></script>
+<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"</script>
 <script type="text/javascript" src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/common/calendar_time_format.js"></script>
 <script type="text/javascript">
 <!--
@@ -72,7 +72,7 @@ function loadCalendarByAddress(calendarAddress) {
 }
 
 /**
- * Uses GData JS Client Library to retrieve a calendar feed from the specified
+ * Uses Google data JS client library to retrieve a calendar feed from the specified
  * URL.  The feed is controlled by several query parameters and a callback 
  * function is called to process the feed results.
  *
@@ -92,7 +92,7 @@ function loadCalendar(calendarUrl) {
 }
 
 /**
- * Callback function for the GData JS Client Library to call when an error
+ * Callback function for the Google data JS client library to call when an error
  * occurs during the retrieval of the feed.  Details available depend partly
  * on the web browser, but this shows a few basic examples. In the case of
  * a privileged environment using ClientLogin authentication, there may also
@@ -121,8 +121,8 @@ function handleGDError(e) {
 }
 
 /**
- * Callback function for the GData JS Client Library to call with a feed of
- * events retrieved.
+ * Callback function for the Google data JS client library to call with a feed 
+ * of events retrieved.
  *
  * Creates an unordered list of events in a human-readable form.  This list of
  * events is added into a div called 'events'.  The title for the calendar is
@@ -186,15 +186,15 @@ function listEvents(feedRoot) {
 </script>
 </head>
 <body onload="loadDeveloperCalendar(); generateJsSource();">
-<h2>Sample Using the GData JS Client Library</h2>
+<h2>Sample using the Google data JavaScript client library</h2>
 
 <p>
   This sample demonstrates displaying a list of upcoming calendar events from a 
-  Google Calendar on a web page using the GData JavaScript Client Library.
+  Google Calendar on a web page using the Google data <a href="http://code.google.com/apis/gdata/client-js.html">JavaScript client library</a>.
 </p>
 <p>
-  The list of events below is retrieved using the GData JavaScript Client 
-  Library from the <a href="http://code.google.com/eventcalendar.html">Google Developers Event Calendar</a>.
+  The list of events below is retrieved using the Google data JavaScript client 
+  library from the <a href="http://code.google.com/eventcalendar.html">Google Developers Event Calendar</a>.
 </p>
 <p>
   You can change the feed address to retrieve the events from any public 
@@ -231,17 +231,17 @@ http://www.google.com/calendar/feeds/&lt;calendar address&gt;/public/full
 <p>
   You can copy and paste the following where you want the list of calendar events to 
   appear.  Do not place it within the <code>&lt;head&gt; ... &lt;/head&gt;</code> 
-  section of your page unless you plan on relocating the <code>&lt;div id="calendar"&gt;...&lt;/div&gt;</code> element out of this chunk of code.
+  section of your page unless you plan on relocating the <code>&lt;div id="calendarTitle"&gt;...&lt;/div&gt;</code> and <code>&lt;div id="events"&gt;...&lt;/div&gt;</code> element out of this chunk of code.
 </p>
 
 <div id="jsSourceDiv">
   <pre id="jsSourceTemplate" style="display: none">
 &lt;script type="text/javascript" src="http://www.google.com/jsapi?key=<b>YOUR_KEY_HERE</b>"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="../../common/calendar_time_format.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/common/calendar_time_format.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript"&gt;
 &lt;!--
 /**
- * Loads the Google data JS Client Library
+ * Loads the Google data JS client library
  */
 google.load("gdata", "1")
 
@@ -250,33 +250,6 @@ google.load("gdata", "1")
  */
 function loadDeveloperCalendar() {
   loadCalendarByAddress('developer-calendar@google.com');
-}
-
-/**
- * Loads the JS source for a user to copy/paste into their site into a div
- * with the name 'jsSource'.
- */
-function generateJsSource() {
-  var elementToUpdate = document.getElementById('jsSourceFinal');
-  var elementUpdateTemplate = document.getElementById('jsSourceTemplate');
-  /* in IE */
-  if (document.all) {
-    elementToUpdate.innerText = 
-        elementUpdateTemplate.innerText +
-        "\n&lt;script type=\"text/javascript\"&gt;" +
-        "\nloadCalendar('http://www.google.com/calendar/feeds/" + 
-        document.getElementById('calendarAddress').value + "/public/full');" +
-        "\n&lt;/script&gt;";
-  } else {
-    /* in Firefox/other */
-    elementToUpdate.textContent = 
-        elementUpdateTemplate.textContent +
-        "\n&lt;script type=\"text/javascript\"&gt;" +
-        "\nloadCalendar('http://www.google.com/calendar/feeds/" + 
-        document.getElementById('calendarAddress').value + "/public/full');" +
-        "\n&lt;/script&gt;";
-  }
-  document.getElementById('jsSourceFinal').style.display = 'block';
 }
 
 /**
@@ -293,7 +266,7 @@ function loadCalendarByAddress(calendarAddress) {
 }
 
 /**
- * Uses GData JS Client Library to retrieve a calendar feed from the specified
+ * Uses GData JS client library to retrieve a calendar feed from the specified
  * URL.  The feed is controlled by several query parameters and a callback 
  * function is called to process the feed results.
  *
@@ -313,7 +286,7 @@ function loadCalendar(calendarUrl) {
 }
 
 /**
- * Callback function for the GData JS Client Library to call when an error
+ * Callback function for the Google data JS client library to call when an error
  * occurs during the retrieval of the feed.  Details available depend partly
  * on the web browser, but this shows a few basic examples. In the case of
  * a privileged environment using ClientLogin authentication, there may also
@@ -342,7 +315,7 @@ function handleGDError(e) {
 }
 
 /**
- * Callback function for the GData JS Client Library to call with a feed of
+ * Callback function for the GData JS client library to call with a feed of
  * events retrieved.
  *
  * Creates an unordered list of events in a human-readable form.  This list of
@@ -402,15 +375,18 @@ function listEvents(feedRoot) {
   }
   eventDiv.appendChild(ul);
 }
-
+//--&gt;
+&lt;/script&gt;
+&lt;div id="calendarTitle"&gt;&lt;/div&gt;
+&lt;div id="events"&gt;&lt;/div&gt;
   </pre>
   <pre id="jsSourceFinal" style="display:none"></pre>
 </div>
 <h3>Resources:</h3>
 <p>
   <ul>
-    <li><a href="http://code.google.com/apis/calendar/">Google Calendar Data API</a></li>
-    <li><a href="http://code.google.com/apis/gdata/client-js.html">GData Java Client Library</a></li>
+    <li><a href="http://code.google.com/apis/calendar/">Google Calendar data API</a></li>
+    <li><a href="http://code.google.com/apis/gdata/client-js.html">Google data Java client library</a></li>
   </ul>
 </p>
 </body>
