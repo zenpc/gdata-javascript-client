@@ -3,7 +3,6 @@
 <title>Sample using the Google data JavaScript client library</title>
 <link rel="stylesheet" type="text/css" href="http://code.google.com/css/dev_docs.css">
 <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"</script>
-<script type="text/javascript" src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/common/calendar_time_format.js"></script>
 <script type="text/javascript">
 <!--
 /* Copyright (c) 2007 Google Inc.
@@ -63,6 +62,16 @@ function generateJsSource() {
         "\n</script>";
   }
   document.getElementById('jsSourceFinal').style.display = 'block';
+}
+
+/**
+ * Adds a leading zero to a single-digit number.  Used for displaying dates.
+ */
+function padNumber(num) {
+  if (num <= 9) {
+    return "0" + num;
+  }
+  return num;
 }
 
 /**
@@ -153,17 +162,22 @@ function listEvents(feedRoot) {
   for (var i = 0; i < len; i++) {
     var entry = entries[i];
     var title = entry.getTitle().getText();
-    var start = null;
+    var startDateTime = null;
+    var startJSDate = null;
     var times = entry.getTimes();
     if (times.length > 0) {
-      start = google.gdata.DateTime.toIso8601(times[0].getStartTime());
+      startDateTime = times[0].getStartTime();
+      startJSDate = startDateTime.getDate();
     }
     var entryLinkHref = null;
     if (entry.getHtmlLink() != null) {
       entryLinkHref = entry.getHtmlLink().getHref();
     }
-
-    var dateString = formatGCalTime(start);
+    var dateString = (startJSDate.getMonth() + 1) + "/" + startJSDate.getDate();
+    if (!startDateTime.isDateOnly()) {
+      dateString += " " + startJSDate.getHours() + ":" + 
+          padNumber(startJSDate.getMinutes());
+    }
     var li = document.createElement('li');
 
     /* if we have a link to the event, create an 'a' element */
@@ -240,16 +254,15 @@ http://www.google.com/calendar/feeds/&lt;calendar address&gt;/public/full
 <div id="jsSourceDiv">
   <pre id="jsSourceTemplate" style="display: none">
 &lt;script type="text/javascript" src="http://www.google.com/jsapi?key=<b>YOUR_KEY_HERE</b>"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/common/calendar_time_format.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript"&gt;
 &lt;!--
-/**
- * Loads the Google data JS client library
- */
-google.load("gdata", "1")
+/* Loads the Google data JavaScript client library */
+google.load("gdata", "1");
 
 function init() {
-  google.gdata.client.init();
+  // init the Google data JS client library with an error handler
+  google.gdata.client.init(handleGDError);
+  // load the code.google.com developer calendar
   loadDeveloperCalendar();
 }
 
@@ -258,6 +271,16 @@ function init() {
  */
 function loadDeveloperCalendar() {
   loadCalendarByAddress('developer-calendar@google.com');
+}
+
+/**
+ * Adds a leading zero to a single-digit number.  Used for displaying dates.
+ */
+function padNumber(num) {
+  if (num <= 9) {
+    return "0" + num;
+  }
+  return num;
 }
 
 /**
@@ -274,7 +297,7 @@ function loadCalendarByAddress(calendarAddress) {
 }
 
 /**
- * Uses GData JS client library to retrieve a calendar feed from the specified
+ * Uses Google data JS client library to retrieve a calendar feed from the specified
  * URL.  The feed is controlled by several query parameters and a callback 
  * function is called to process the feed results.
  *
@@ -287,8 +310,8 @@ function loadCalendar(calendarUrl) {
   query.setOrderBy('starttime');
   query.setSortOrder('ascending');
   query.setFutureEvents(true);
-  query.setSingleEvents('true');
-  query.setMaxResults('10');
+  query.setSingleEvents(true);
+  query.setMaxResults(10);
 
   service.getEventsFeed(query, listEvents, handleGDError);
 }
@@ -323,8 +346,8 @@ function handleGDError(e) {
 }
 
 /**
- * Callback function for the GData JS client library to call with a feed of
- * events retrieved.
+ * Callback function for the Google data JS client library to call with a feed 
+ * of events retrieved.
  *
  * Creates an unordered list of events in a human-readable form.  This list of
  * events is added into a div called 'events'.  The title for the calendar is
@@ -333,42 +356,41 @@ function handleGDError(e) {
  * @param {json} feedRoot is the root of the feed, containing all entries 
  */ 
 function listEvents(feedRoot) {
-  var entries = feedRoot.feed.entry;
+  var entries = feedRoot.feed.getEntries();
   var eventDiv = document.getElementById('events');
-  if (eventDiv.childNodes.length &gt; 0) {
+  if (eventDiv.childNodes.length > 0) {
     eventDiv.removeChild(eventDiv.childNodes[0]);
-  }   
+  }	  
   /* create a new unordered list */
   var ul = document.createElement('ul');
   /* set the calendarTitle div with the name of the calendar */
   document.getElementById('calendarTitle').innerHTML = 
     "Calendar: " + feedRoot.feed.title.$t;
   /* loop through each event in the feed */
-  var l = entries.length;
-  for (var i = 0; i &lt; l; i++) {
+  var len = entries.length;
+  for (var i = 0; i < len; i++) {
     var entry = entries[i];
     var title = entry.getTitle().getText();
-    var start = null;
+    var startDateTime = null;
+    var startJSDate = null;
     var times = entry.getTimes();
-    if (times.length &gt; 0) {
-      start = google.gdata.DateTime.toIso8601(times[0].getStartTime());
+    if (times.length > 0) {
+      startDateTime = times[0].getStartTime();
+      startJSDate = startDateTime.getDate();
     }
-    var entryLinkHref;
-
-    /* get the URL to link to the event */
-    var ll = entry['link'].length;
-    for (var linki = 0; linki &lt; ll; linki++) {
-      if (entry['link'][linki]['type'] == 'text/html' &&
-          entry['link'][linki]['rel'] == 'alternate') {
-        entryLinkHref = entry['link'][linki]['href'];
-      }
+    var entryLinkHref = null;
+    if (entry.getHtmlLink() != null) {
+      entryLinkHref = entry.getHtmlLink().getHref();
     }
-
-    var dateString = formatGCalTime(start);
+    var dateString = (startJSDate.getMonth() + 1) + "/" + startJSDate.getDate();
+    if (!startDateTime.isDateOnly()) {
+      dateString += " " + startJSDate.getHours() + ":" + 
+          padNumber(startJSDate.getMinutes());
+    }
     var li = document.createElement('li');
 
     /* if we have a link to the event, create an 'a' element */
-    if (typeof entryLinkHref != 'undefined') {
+    if (entryLinkHref != null) {
       entryLink = document.createElement('a');
       entryLink.setAttribute('href', entryLinkHref);
       entryLink.appendChild(document.createTextNode(title));
@@ -376,13 +398,15 @@ function listEvents(feedRoot) {
       li.appendChild(document.createTextNode(' - ' + dateString));
     } else {
       li.appendChild(document.createTextNode(title + ' - ' + dateString));
-    }       
+    }	    
 
     /* append the list item onto the unordered list */
     ul.appendChild(li);
   }
   eventDiv.appendChild(ul);
 }
+
+google.setOnLoadCallback(init);
 //--&gt;
 &lt;/script&gt;
 &lt;div id="calendarTitle"&gt;&lt;/div&gt;
