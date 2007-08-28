@@ -68,7 +68,7 @@ function xPath(query) {
  * If successful, it calls the function to create the button link.
  */
 function insertAddLink() {
-  var monthDayLinks = xPath('//a[contains(@href, 's.php?adv&k=10010')]');
+  var monthDayLinks = xPath("//a[contains(@href, 's.php?adv&k=10010')]");
   if (monthDayLinks.snapshotLength > 0) { //take the first
     var monthDayLink = monthDayLinks.snapshotItem(0);
     var monthDayText = monthDayLink.innerHTML;
