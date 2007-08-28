@@ -173,6 +173,11 @@ function loadEvent() {
   saveButton.disabled = false;
 
   var eventList = document.getElementById(EVENT_SELECT);
+
+  // If the first option (Select...) is selected, don't do anything
+  if (eventList.selectedIndex == 0) {
+    return;
+  }
   var eventIndex = eventList.options[eventList.selectedIndex].value;
   var event = myEventsFeed.getEntries()[eventIndex];
 
@@ -251,11 +256,11 @@ function handleSaveSuccess(entryRoot) {
  * cleared.
  */
 function setStatus(msg) {
-  status = document.getElementById(STATUS_AREA);
+  var eventStatus = document.getElementById(STATUS_AREA);
   if (msg) {
-    status.innerHTML = msg;
+    eventStatus.innerHTML = msg;
   } else {
-    status.innerHTML = "";
+    eventStatus.innerHTML = "";
   }
 };
 
@@ -275,16 +280,16 @@ function handleSaveError(e) {
  */
 function handleError(e) {
   if (e instanceof Error) {
-    /* alert with the error line number, file and message */
+    // Alert with the error line number, file and message.
     alert('Error at line ' + e.lineNumber +
-          ' in ' + e.fileName + '\n' +
-          'Message: ' + e.message);
-    /* if available, output HTTP error code and status text */
+        ' in ' + e.fileName + '\n' +
+        'Message: ' + e.message);
+    // If available, output HTTP error code and status text
     if (e.cause) {
-      var status = e.cause.status;
+      var errorStatus = e.cause.status;
       var statusText = e.cause.statusText;
-      alert('Root cause: HTTP error ' + status + ' with status text of: ' +
-            statusText);
+      alert('Root cause: HTTP error ' + errorStatus + ' with status text of: ' +
+          statusText);
     }
   } else {
     alert(e.toString());
