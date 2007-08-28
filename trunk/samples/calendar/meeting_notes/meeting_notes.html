@@ -29,7 +29,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
  * @fileoverview Demonstrates AuthSub, date range queries, and cross domain
  * writes using the JavaScript client library and the Google Calendar 
@@ -76,7 +75,7 @@ function init() {
   // Write the token to the console for debug
   //google.gdata.util.log("token: '" + token + "'");
 
-  myService = new google.gdata.calendar.CalendarService("meetingNotes-0.9");
+  myService = new google.gdata.calendar.CalendarService("Google-meetingNotes-0.9");
 
   var authButton = document.getElementById(AUTH_BUTTON);
   if (google.accounts.user.checkLogin(EVENT_FEED_URL)) {
@@ -272,8 +271,7 @@ function handleSaveError(e) {
  *   the Google Calendar service.  
  */
 function handleError(e) {
-  alert("failed: " + e);
-  //google.gdata.util.log("failed: " + e);
+  google.gdata.util.log("failed: " + e);
 };
 
 /**
