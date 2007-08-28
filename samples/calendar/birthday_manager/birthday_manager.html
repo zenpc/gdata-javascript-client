@@ -125,6 +125,7 @@ function handleEventsFeed(resultsFeedRoot) {
   eventsFeed = resultsFeedRoot.feed;
   events = eventsFeed.getEntries();
   var upcomingBirthdaysTable = document.createElement('table');
+  var upcomingBirthdaysTbody = document.createElement('tbody');
   for (var i = 0; i < events.length; i++) {
     var eventTitle = events[i].getTitle().getText();
     if (eventTitle.match('Birthday Reminder')) {
@@ -160,9 +161,10 @@ function handleEventsFeed(resultsFeedRoot) {
       eventRow.appendChild(nameCell);
       eventRow.appendChild(dateCell);
       eventRow.appendChild(profileCell);
-      upcomingBirthdaysTable.appendChild(eventRow);
+      upcomingBirthdaysTbody.appendChild(eventRow);
     }
   }
+  upcomingBirthdaysTable.appendChild(upcomingBirthdaysTbody);
   upcomingBirthdaysContent.appendChild(upcomingBirthdaysTable);
 }
 
