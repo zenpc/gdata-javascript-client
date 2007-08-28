@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+<ModulePrefs
+title="Birthday Reminder" height="240" width="280">
+</ModulePrefs>
+<UserPref
+name="image"
+datatype="string"
+default_value=""
+/>
+<UserPref
+name="birthmonth"
+datatype="string"
+default_value="6"
+/>
+<UserPref
+name="birthday"
+datatype="string"
+default_value="24"
+/>
+<UserPref
+name="birthyear"
+datatype="string"
+default_value="1984"
+/>
+<UserPref
+name="name"
+datatype="string"
+default_value="Binky"
+/>
+<UserPref
+name="profile"
+datatype="string"
+default_value="http://www.facebook.com"
+/>
+<Content type="html">
+<![CDATA[
+<style type="text/css">
+  a {
+    color: #ff0000;
+  }
+  a: visited {
+    color: #ff0000;
+  }
+</style>
+
+<img src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/calendar/birthday_manager/images/fingerreminder2.jpg" align="left"/>
+<img src="http://gdata-javascript-client.googlecode.com/svn/trunk/samples/calendar/birthday_manager/images/birthdayreminder.jpg" align="left"/>
+
+<div id="birthdayReminderMessage" style="padding: 10px; text-align:center; font-size: 11px; font-weight: bold;"></div>
+<div id="birthdayReminderImage" style="padding: 10px; text-align:center"></div>
+
+
+<script type="text/javascript">
+/* Copyright (c) 2007 Google Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+// Get user preferences
+var prefs = new _IG_Prefs(__MODULE_ID__);
+
+// Figure out how old they are
+var today = new Date();
+var todayMS = today.getMilliseconds();
+var birthdate = new Date();
+birthdate.setFullYear(prefs.getInt('birthyear'), prefs.getInt('birthmonth'), prefs.getInt('birthday'));
+var age = today.getFullYear() - birthdate.getFullYear();
+
+// Display the image and message
+var birthdayMsg = document.createElement('span');
+var profileLink = document.createElement('a');
+profileLink.setAttribute('href', prefs.getString('profile'));
+profileLink.setAttribute('target', '_blank');
+profileLink.style.color = "#ff0000";
+profileLink.appendChild(document.createTextNode(prefs.getString('name')));
+birthdayMsg.appendChild(profileLink);
+birthdayMsg.appendChild(document.createTextNode(' turns ' + age + ' today.'));
+_gel('birthdayReminderMessage').appendChild(birthdayMsg);
+
+var birthdayImg = document.createElement('img');
+birthdayImg.style.border = '1px solid #ff0000';
+birthdayImg.setAttribute('width', '110');
+birthdayImg.setAttribute('height', '150');
+birthdayImg.setAttribute('src', prefs.getString('image'));
+_gel('birthdayReminderImage').appendChild(birthdayImg);
+
+</script
+]]> </Content>
+</Module>
