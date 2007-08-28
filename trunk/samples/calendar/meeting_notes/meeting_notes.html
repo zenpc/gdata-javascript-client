@@ -15,20 +15,20 @@
     </style>
     <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"></script>
     <script type="text/javascript">
-/* Copyright (c) 2007 Google Inc.
+/* Copyright (c) 2007 Google Inc. 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0 
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * limitations under the License. */
+
 /**
  * @fileoverview Demonstrates AuthSub, date range queries, and cross domain
  * writes using the JavaScript client library and the Google Calendar 
@@ -75,16 +75,17 @@ function init() {
   // Write the token to the console for debug
   //google.gdata.util.log("token: '" + token + "'");
 
-  myService = new google.gdata.calendar.CalendarService("Google-meetingNotes-0.9");
+  myService = 
+      new google.gdata.calendar.CalendarService("Google-meetingNotes-0.9");
 
   var authButton = document.getElementById(AUTH_BUTTON);
   if (google.accounts.user.checkLogin(EVENT_FEED_URL)) {
-    document.getElementById(DEFAULT_PANE).style.visibility = "collapse";
-    document.getElementById(AUTHENTICATED_PANE).style.visibility = "visible";
+    document.getElementById(DEFAULT_PANE).style.display = "none";
+    document.getElementById(AUTHENTICATED_PANE).style.display = "inline";
     getEvents();
   } else {
-    document.getElementById(DEFAULT_PANE).style.visibility = "visible";
-    document.getElementById(AUTHENTICATED_PANE).style.visibility = "collapse";
+    document.getElementById(DEFAULT_PANE).style.display = "inline";
+    document.getElementById(AUTHENTICATED_PANE).style.display = "none";
   } 
   reset();
 };
@@ -238,7 +239,9 @@ function saveEvent() {
  */
 function handleSaveSuccess(entryRoot) {
   var eventList = document.getElementById(EVENT_SELECT);
-  var eventIndex = eventList.options[eventList.selectedIndex].value;
+  var option = eventList.options[eventList.selectedIndex]
+  option.text = entryRoot.entry.getTitle().getText();
+  var eventIndex = option.value;
   myEventsFeed.getEntries()[eventIndex] = entryRoot.entry;
   setStatus("Saved")
 };
@@ -271,7 +274,8 @@ function handleSaveError(e) {
  *   the Google Calendar service.  
  */
 function handleError(e) {
-  google.gdata.util.log("failed: " + e);
+  alert("failed: " + e);
+  //google.gdata.util.log("failed: " + e);
 };
 
 /**
@@ -316,12 +320,12 @@ function reset() {
         </td>
         <td class="plain" style="width:460px;">
           <table class="plain">
-            <tr id="default-pane">
+            <tr id="default-pane" style="display:none">
               <td class="plain" style="height:404px; width:460px; background-color: rgb(158,200,255); text-align:center; vertical-align:middle">
                 <input id="auth-button" type="button" value="Login" onclick="login()" style="margin:5px 0px 5px 0px;"/>  
               </td>
-            </tr>
-            <tr id="authenticated-pane"> 
+            </div>
+            <tr id="authenticated-pane" style="display:none"> 
               <td class="plain" style="height:auto;background-color: rgb(158,200,255);text-align:center;">
                 <div id="dropdown">
                   Select a meeting to take notes for:
