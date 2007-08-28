@@ -68,7 +68,7 @@ function xPath(query) {
  * If successful, it calls the function to create the button link.
  */
 function insertAddLink() {
-  var monthDayLinks = xPath("//a[contains(@href, 's.php?adv&k=10010')]");
+  var monthDayLinks = xPath('//a[contains(@href, "s.php?adv&k=10010")]');
   if (monthDayLinks.snapshotLength > 0) { //take the first
     var monthDayLink = monthDayLinks.snapshotItem(0);
     var monthDayText = monthDayLink.innerHTML;
@@ -78,7 +78,7 @@ function insertAddLink() {
     return;
   }
 
-  var yearLinks = xPath('//a[contains(@href, 'b.php?k=10010&n=-1&y1=')]');
+  var yearLinks = xPath('//a[contains(@href, "b.php?k=10010&n=-1&y1=")]');
   if (yearLinks.snapshotLength > 0) { //take the first
     var yearLink = yearLinks.snapshotItem(0);
     var yearText = yearLink.innerHTML;
@@ -87,14 +87,14 @@ function insertAddLink() {
   }
 
 
-  var picImgs = xPath('//a[contains(@href, 'album.php?profile')]/img')
+  var picImgs = xPath('//a[contains(@href, "album.php?profile")]/img');
   if (picImgs.snapshotLength > 0) { //take the first
     var picImg = picImgs.snapshotItem(0);
   } else {
     var picImg = '';
   }
    
-  var nameHs = xPath('//div[@class='profile_name']/h2');
+  var nameHs = xPath('//div[@class="profile_name"]/h2');
   if (nameHs.snapshotLength > 0) { //take the first
     var nameH = nameHs.snapshotItem(0);
     var nameText = nameH.lastChild.nodeValue;
