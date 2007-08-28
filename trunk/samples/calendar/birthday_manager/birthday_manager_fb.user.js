@@ -133,7 +133,7 @@ function makeAgeNode(nameText, dayText, monthText, yearText, picImgSrc, profileU
 
   var addToCalImage = document.createElement('img');
   addToCalImage.setAttribute('src', 
-    'http://gdata-javascript-client.googlecode.com/svn/trunk/samples/calendar/birthday_manager/birthday_manager/images/birthdayreminder_addtocal.png');
+    'http://gdata-javascript-client.googlecode.com/svn/trunk/samples/calendar/birthday_manager/images/birthdayreminder_addtocal.png');
 
   var link = document.createElement('a');
   var baseUrl = 'http://gdata-javascript-client.googlecode.com/' +
