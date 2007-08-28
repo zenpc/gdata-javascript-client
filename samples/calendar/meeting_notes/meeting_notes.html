@@ -274,8 +274,21 @@ function handleSaveError(e) {
  *   the Google Calendar service.  
  */
 function handleError(e) {
-  alert("failed: " + e);
-  //google.gdata.util.log("failed: " + e);
+  if (e instanceof Error) {
+    /* alert with the error line number, file and message */
+    alert('Error at line ' + e.lineNumber +
+          ' in ' + e.fileName + '\n' +
+          'Message: ' + e.message);
+    /* if available, output HTTP error code and status text */
+    if (e.cause) {
+      var status = e.cause.status;
+      var statusText = e.cause.statusText;
+      alert('Root cause: HTTP error ' + status + ' with status text of: ' +
+            statusText);
+    }
+  } else {
+    alert(e.toString());
+  }
 };
 
 /**
