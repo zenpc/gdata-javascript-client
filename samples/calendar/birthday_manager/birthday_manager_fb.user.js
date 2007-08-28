@@ -18,21 +18,13 @@
  * This works in conjunction with the Birthday Manager, a sample for the Javascript API.
  */
 
-
 // ==UserScript==
-
 // @name          Facebook Birthday Manager
-
 // @namespace     http://www.google.com
-
 // @description   Adds a link on profile pages that will let you add a user's birthday to your calendar.
-
 // @include       *.thefacebook.com/profile.php*
-
 // @include       *.facebook.com/profile.php*
-
 // ==/UserScript==
-
 
 
 // Facebook shows month names. This maps them to 1-12.
@@ -58,8 +50,12 @@ var monthNumMappings = {
  * @return {XPathResult} Nodes found from query.
  */
 function xPath(query) {
-  return document.evaluate(query, document, null, 
-      XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+  return document.evaluate(
+      query, 
+      document, 
+      null, 
+      XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, 
+      null);
 }
 
 /**
@@ -68,6 +64,7 @@ function xPath(query) {
  * If successful, it calls the function to create the button link.
  */
 function insertAddLink() {
+
   var monthDayLinks = xPath('//a[contains(@href, "s.php?adv&k=10010")]');
   if (monthDayLinks.snapshotLength > 0) { //take the first
     var monthDayLink = monthDayLinks.snapshotItem(0);
@@ -87,7 +84,7 @@ function insertAddLink() {
   }
 
 
-  var picImgs = xPath('//a[contains(@href, "album.php?profile")]/img');
+  var picImgs = xPath('//a[contains(@href, "album.php?profile")]/img')
   if (picImgs.snapshotLength > 0) { //take the first
     var picImg = picImgs.snapshotItem(0);
   } else {
@@ -132,13 +129,16 @@ function makeAgeNode(nameText, dayText, monthText, yearText, picImgSrc, profileU
   var container = document.createElement('span');
 
   var addToCalImage = document.createElement('img');
+
   addToCalImage.setAttribute('src', 
-    'http://gdata-javascript-client.googlecode.com/svn/trunk/samples/calendar/birthday_manager/images/birthdayreminder_addtocal.png');
+    'http://gdata-javascript-client.googlecode.com/' +
+    'svn/trunk/samples/calendar/birthday_manager/' + 
+    '/images/birthdayreminder_addtocal.png');
 
   var link = document.createElement('a');
   var baseUrl = 'http://gdata-javascript-client.googlecode.com/' +
-      'svn/trunk/samples/calendar/birthday_manager/' +
-      'birthday_manager.html';
+    'svn/trunk/samples/calendar/birthday_manager/' + 
+    'birthday_manager.html';
   var url = baseUrl + '?name=' + escape(nameText) + '&birthdate=' + 
       monthNumMappings[monthText] + '/' + dayText + '/' + yearText + 
       '&image=' + picImgSrc + '&profile=' + profileUrl;
@@ -151,5 +151,6 @@ function makeAgeNode(nameText, dayText, monthText, yearText, picImgSrc, profileU
   return (container);
 }
 
-
 insertAddLink();
+
+
