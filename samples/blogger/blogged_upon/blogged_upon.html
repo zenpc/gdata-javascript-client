@@ -1,0 +1,521 @@
+<html>
+  <head>
+    <title>Blogged Upon</title>
+    <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAVzcu66YGicZvSPDVjflWZRQkdwf30UEryoEcWYgVOc_USNqEkxQkdR_BWf8ImhnhR_oQp2C-OaTnJw"></script>
+    <script type="text/javascript">
+      /* Copyright (c) 2007 Google Inc. 
+       *
+       * Licensed under the Apache License, Version 2.0 (the "License");
+       * you may not use this file except in compliance with the License.
+       * You may obtain a copy of the License at
+       *
+       * http://www.apache.org/licenses/LICENSE-2.0 
+       *
+       * Unless required by applicable law or agreed to in writing, software
+       * distributed under the License is distributed on an "AS IS" BASIS,
+       * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       * See the License for the specific language governing permissions and
+       * limitations under the License.
+       */
+
+      /**
+       * @fileoverview Demonstrates AuthSub, retrieving a user's blog feed, and
+       * cross-domain writes using the JavaScript client library for Blogger;
+       * also shows how Google's AJAX Search API for blogs can be "mashed"
+       * with Blogger's JavaScript library for fun times.
+       */
+    
+      // Load the AJAX Search API
+      google.load("search", "1");
+
+      // Load the Google data JavaScript client library
+      google.load("gdata", "1.x");
+
+      // Set init() to be called after JavaScript libraries load
+      google.setOnLoadCallback(init);
+
+      // Object for storing constants and global variables
+      var bloggedUpon = {
+        CURRENT_ENTRY: null,
+        SELECTED_BLOG_URL: null,
+        SELECTED_INTEREST: null,
+        AUTHENTICATION_URL: 'http://www.blogger.com/feeds',
+        PERSONAL_BLOG_LIST_URL: 'http://www.blogger.com/feeds/default/blogs',
+        
+        SEARCH_FIELD: 'searchField',
+        AUTHENTICATION_LINK: 'authenticationLink',
+        MAIN_CONTENT_TABLE: 'mainContentTable',
+        INTERESTS_CELL: 'interestsCell',
+        ENTRY_CONTAINER: 'entryContainer',
+        PREVIEW_FRAME: 'previewFrame',
+        BLOG_THIS_ENTRY_BUTTON: 'blogThisEntryButton',
+        STATUS_CONTAINER: 'statusContainer',
+        BLOGGER_FORMS: 'bloggerForms',
+        BLOG_SELECT: 'blogSelect',
+        NEW_POST_CONTENT: 'newPostContent'
+      };
+
+      /**
+       * Onload handler: calls two initialization subroutines
+       */
+      function init() {
+        // Create service object for accessing private feeds using AuthSub
+        bloggedUpon.service =
+            new google.gdata.blogger.BloggerService('GoogleInc-BloggedUpon-1');
+
+        initializeAJAXSearch();
+        initializeUI();
+      }
+      
+      /**
+       * Initializes AJAX Search API: creates a new SearchControl() object and
+       * specifies properties for this object such as display location and
+       * callback function
+       */
+      function initializeAJAXSearch() {
+        var searchControl = new google.search.SearchControl();
+
+        // SearchControl object is initialized to search over blog entries only
+        searchControl.addSearcher(new google.search.BlogSearch());
+
+        // Set searchCompleteHandler() to execute after search is executed
+        searchControl.setSearchCompleteCallback(this, searchCompleteHandler);
+
+        // Render search field and results in 'searchField' div element
+        var searchField = document.getElementById(bloggedUpon.SEARCH_FIELD);
+        searchControl.draw(searchField);
+        
+        bloggedUpon.AJAX_SEARCH_CONTROL = searchControl;
+      }
+
+      /**
+       * Resets interface and retrieves user's private blog feed if user is
+       * signed in
+       */
+      function initializeUI() {
+        var authenticationLink = document.getElementById(
+            bloggedUpon.AUTHENTICATION_LINK);
+        
+        if (google.accounts.user.checkLogin(bloggedUpon.AUTHENTICATION_URL)) {
+          bloggedUpon.service.getBlogFeed(bloggedUpon.PERSONAL_BLOG_LIST_URL,
+                                          getBlogFeedHandler, errorHandler);
+          showElement(bloggedUpon.MAIN_CONTENT_TABLE);
+          authenticationLink.innerHTML = 'Sign out';
+          authenticationLink.onclick = signOut;
+        } else {
+          hideElement(bloggedUpon.MAIN_CONTENT_TABLE);
+          hideElement(bloggedUpon.STATUS_CONTAINER);
+          authenticationLink.innerHTML = 'Sign in';
+          authenticationLink.onclick = signIn;
+        }
+      }
+
+      // Blogger
+
+      /**
+       * Requests an AuthSub token for interaction with the Blogger service
+       */
+      function signIn() {
+        var token = google.accounts.user.login(bloggedUpon.AUTHENTICATION_URL);
+      }
+
+      /**
+       * Revokes the AuthSub token and resets the interface
+       */
+      function signOut() {
+        google.accounts.user.logout();
+        initializeUI();
+      }
+
+      /**
+       * Called after successful retrieval of blog feed; populates drop-down
+       * menu with titles of user's blogs
+       *
+       * @param {Object} blogFeedRoot JSON object containing collection of blog
+       *   entries
+       */
+      function getBlogFeedHandler(blogFeedRoot) {
+        var blogArr = blogFeedRoot.feed.getEntries();
+        var blogSelect = document.getElementById(bloggedUpon.BLOG_SELECT);
+        
+        for (var i = 0; i < blogArr.length; i++) {
+          var newOption = document.createElement('option');
+          var blogTitle = blogArr[i].getTitle().getText();
+          var blogLocation = blogArr[i].getEntryPostLink().getHref();
+
+          newOption.value = blogLocation;
+          newOption.innerHTML = blogTitle;
+          blogSelect.appendChild(newOption);
+        }
+      }
+
+      /**
+       * Called if Blogger service is unable to retrieve a feed or insert an
+       * entry properly; creates a popup alert notifying user of error of cause
+       * 
+       * @param {Object} e Object containing error information
+       */
+      function errorHandler(e) {
+        alert(e.cause.status ? e.cause.status : e.message);
+      }
+
+      /**
+       * Called when user selects new blog from drop-down; determines URL for
+       * selected blog and fetches its post feed
+       *
+       * @param {Object} blogSelect DOM object representing changed HTML select
+       *   element
+       */
+      function changeSelectedBlog(blogSelect) {
+        if (blogSelect.value != '') {
+          bloggedUpon.SELECTED_BLOG_URL = blogSelect.value;
+        } else {
+          bloggedUpon.SELECTED_BLOG_URL = null;
+        }
+      }
+
+      /**
+       * Called after user clicks "Submit post" button; creates new
+       * blogPostEntry object, sets various properties such as title,
+       * content, and category, and inserts it into the appropriate post feed
+       */
+      function addNewPost() {
+        var newPostContent = document.getElementById(
+            bloggedUpon.NEW_POST_CONTENT);
+
+        if (bloggedUpon.SELECTED_BLOG_URL != null) {
+          var newEntry = new google.gdata.blogger.BlogPostEntry();
+          
+          var currentEntryTitle = bloggedUpon.CURRENT_ENTRY.titleNoFormatting;
+          var titleArr = ['Re: ', currentEntryTitle];
+          
+          var title = google.gdata.Text.create(titleArr.join(''));
+          var content = google.gdata.Text.create(newPostContent.value, 'html');
+          var category = new google.gdata.Category({
+            'scheme': 'http://www.blogger.com/atom/ns#',
+            'term': bloggedUpon.SELECTED_INTEREST
+          });
+                    
+          newEntry.setTitle(title);
+          newEntry.setContent(content);
+          newEntry.addCategory(category);
+          bloggedUpon.service.insertEntry(bloggedUpon.SELECTED_BLOG_URL,
+                                          newEntry, insertEntryHandler,
+                                          errorHandler);
+        } else {
+          alert('Please select a blog first!');
+        }
+      }
+
+      /**
+       * Called after successful insertion of new post into selected blog feed;
+       * displays status message with link to newly inserted post
+       *
+       * @param {Object} entryRoot JSON object containing blog post entry object
+       */
+      function insertEntryHandler(entryRoot) {
+        var statusContainer = document.getElementById(
+            bloggedUpon.STATUS_CONTAINER);
+        var appStatusArr = ['<b>Post submitted successfully! Click <a href="',
+            entryRoot.entry.getHtmlLink().getHref(),
+            '">here</a> to view it.</b>'];
+        
+        statusContainer.innerHTML = appStatusArr.join('');
+        showElement(bloggedUpon.STATUS_CONTAINER);
+        hideElement(bloggedUpon.BLOGGER_FORMS);
+      }
+
+      // AJAX Search
+      
+      /**
+       * Called after user clicks "Get new entry" button; randomly selects a
+       * checked interest and executes a blog search on the selected interest
+       */
+      function getNewEntry() {
+        hideElement(bloggedUpon.PREVIEW_FRAME);
+        hideElement(bloggedUpon.BLOGGER_FORMS);
+
+        var interestsCell = document.getElementById(bloggedUpon.INTERESTS_CELL);
+        var interestInputs = interestsCell.getElementsByTagName('input');
+        var interestsArr = [];
+
+        for (var i = 0; i < interestInputs.length; i++) {
+          var interest = interestInputs[i];
+          if (interest.type == 'checkbox' && interest.checked == true) {
+            interestsArr.push(interest.value);
+          } 
+        }
+
+        if (interestsArr.length == 0) {
+          alert('Please select one or more interests first.');
+          return;
+        }
+        
+        var randomNumber = [Math.floor(Math.random() * interestsArr.length)];
+        var selectedInterest = interestsArr[randomNumber];
+        bloggedUpon.SELECTED_INTEREST = selectedInterest;
+        
+        bloggedUpon.AJAX_SEARCH_CONTROL.execute(selectedInterest);
+
+        var blogThisEntryButton = document.getElementById(
+            bloggedUpon.BLOG_THIS_ENTRY_BUTTON);
+        blogThisEntryButton.style.visibility = 'visible';
+      }
+
+      /**
+       * Called after successful search execution; randomly selects a blog post
+       * from the returned results and formats and displays an HTML div element
+       * with the title, author, date, and snippet of the post as well as a
+       * JavaScript link to toggle the display of the preview iframe
+       *
+       * @param {google.search.SearchControl} sc Original SearchControl object
+       * @param {google.search.BlogSearch} searcher Object containing collection
+       *   of google.search.BlogResult objects
+       */
+      function searchCompleteHandler(sc, searcher) {
+        var entryContainer = document.getElementById(
+            bloggedUpon.ENTRY_CONTAINER);
+        entryContainer.innerHTML = '';
+        
+        if (searcher.results.length == 0) {
+          alert('No results were returned for the selected interests.');
+          return;
+        }
+
+        var randomNumber = Math.floor(Math.random() * searcher.results.length);
+        var currentEntry = searcher.results[randomNumber];
+        bloggedUpon.CURRENT_ENTRY = currentEntry;
+
+        var snippetDiv = document.createElement('div');
+        snippetDiv.innerHTML = bloggedUpon.CURRENT_ENTRY.content;
+
+        var generalLink = document.createElement('a');
+        generalLink.href = bloggedUpon.CURRENT_ENTRY.postUrl;
+        generalLink.innerHTML = bloggedUpon.CURRENT_ENTRY.titleNoFormatting;
+        
+        var previewLink = document.createElement('a');
+        previewLink.id = 'previewLink';
+        previewLink.href = 'javascript:togglePreviewDisplay()';
+        previewLink.innerHTML = 'Show preview';
+        previewLink.style.fontSize = '10pt';
+        previewLink.style.color = 'red';
+        
+        var entryInfoArr = ['<u>Posted by <i>',
+            bloggedUpon.CURRENT_ENTRY.author, '</i> on ',
+            bloggedUpon.CURRENT_ENTRY.publishedDate, '</u>'];
+
+        var entryDiv = document.createElement('div');
+        entryDiv.appendChild(generalLink);
+        entryDiv.innerHTML += '&nbsp;&nbsp;('; 
+        entryDiv.appendChild(previewLink);
+        entryDiv.innerHTML += ')';
+        entryDiv.appendChild(document.createElement('br'));
+        entryDiv.innerHTML += entryInfoArr.join('');
+        entryDiv.appendChild(document.createElement('br'));
+        entryDiv.appendChild(snippetDiv);
+
+        entryContainer.appendChild(entryDiv);
+      }
+      
+      // Utility
+      
+      /**
+       * Called after user clicks "Blog about this entry" button; copies and
+       * formats the displayed blog entry's title, snippet, and other meta
+       * information into the text area beneath, effectively readying it for
+       * posting to the selected blog
+       */
+      function populatePostContent() {
+        var newPostContent = document.getElementById(
+            bloggedUpon.NEW_POST_CONTENT);
+        
+        hideElement(bloggedUpon.STATUS_CONTAINER);
+        showElement(bloggedUpon.BLOGGER_FORMS);
+        
+        var contentArr = ['In response to <a href="',
+            bloggedUpon.CURRENT_ENTRY.postUrl, '">',
+            bloggedUpon.CURRENT_ENTRY.titleNoFormatting, '</a>:<br/>',
+            '<div style="border:dashed olive 1px; padding:5px"><p>',
+            bloggedUpon.CURRENT_ENTRY.content, '</p></div>'];
+        
+        newPostContent.value = contentArr.join('');
+      }
+
+      /**
+       * Utility function for toggling the display of the preview iframe and 
+       * setting its source URL.
+       */
+      function togglePreviewDisplay() {
+        var previewFrame = document.getElementById(bloggedUpon.PREVIEW_FRAME);
+        
+        if (previewFrame.style.display == 'none') {
+          document.getElementById('previewLink').innerHTML = 'Hide preview';
+          previewFrame.src = bloggedUpon.CURRENT_ENTRY.postUrl;
+          showElement(bloggedUpon.PREVIEW_FRAME);
+        } else {
+          document.getElementById('previewLink').innerHTML = 'Show preview';
+          hideElement(bloggedUpon.PREVIEW_FRAME);
+        }
+      }
+      
+      /**
+       * Utility function for displaying the element corresponding to the
+       * passed ID
+       *
+       * @param {String} elementId ID of object to be displayed
+       */
+      function showElement(elementId) {
+        if (document.getElementById(elementId)) {
+          document.getElementById(elementId).style.display = 'block';
+        }
+      }
+      
+      /**
+       * Utility function for hiding the element corresponding to the passed ID
+       *
+       * @param {String} elementId ID of object to be hidden
+       */
+      function hideElement(elementId) {
+        if (document.getElementById(elementId)) {
+          document.getElementById(elementId).style.display = 'none';
+        }
+      }
+    </script>
+    <style type="text/css">
+      body {
+        font-family: sans-serif;
+      }
+      a:visited {
+        color: blue;
+      }
+      #searchField, #searchResults {
+        display:none;
+      }
+      #titleContainer {
+        border: solid olive 2px;
+        border-left: none;
+        border-right: none;
+        margin-bottom: 10px;
+        width: 225px;
+      }
+      #title {
+        color: olive;
+        font-family: sans-serif;
+        margin: 0px;
+        padding: 0px;
+      }
+      #authLink {
+        font-size: 14pt;
+      }
+      #interestsCell {
+        border: solid #666633 1px;
+        background-color: #FFFFCC;
+        padding: 10px 0px 10px 15px;
+      }
+      #interestsText {
+        margin: 0px;
+        text-align: center;
+      }
+      #previewFrame {
+        display: none;
+        height: 200px;
+        width: 100%;
+      }
+      #blogThisEntryButton {
+        visibility: hidden;
+      }
+      #statusContainer {
+        display: none;
+        margin: 10px 0px 10px 0px;
+      }
+      #newPostContent {
+        height: 250px;
+        width: 100%
+      }
+    </style>
+  </head>
+  <body>
+    <div id="searchField"></div>
+    <img src="images/pixelImg.jpg"/>
+    
+    <div id="titleContainer">
+      <h1 id="title"><i>Blogged</i> Upon</h1>
+    </div>
+    <div>
+      This sample demonstrates how you can use Google's AJAX Search API and the
+      new Blogger JavaScript client library to create compelling applications.
+      This application allows you to select from a set of interests and
+      randomly fetches blog posts related to the interests selected. If you
+      discover a post worth replying to, you can click "Blog about this entry"
+      and a snippet of the post will be pasted into a text area. Simply add
+      your commentary, select the blog your want to post to, and click the
+      "Submit post" button, and a new entry is added to your blog. Yep, it's
+      that easy!
+    </div>
+    <hr/>
+    <div style="margin-bottom:30px">
+      <a id="authenticationLink" href="#" onclick="signIn()">Sign in</a>
+    </div>
+    <table id="mainContentTable" style="display:none; width:800px">
+      <tr>
+        <td style="padding-right:10px; width:165px" valign="top">
+          <table style="width:100%">
+            <tr>
+              <td id="interestsCell" style="padding-right:15px; width:100%">
+                <h5 id="interestsText">Select your<br/>interests!</h5>
+                <hr/>
+                <input type="checkbox" value="Astronomy"/> Astronomy
+                <br/>
+                <input type="checkbox" value="Beading"/> Beading
+                <br/>
+                <input type="checkbox" value="Cooking"/> Cooking
+                <br/>
+                <input type="checkbox" value="Gardening"/> Gardening
+                <br/>
+                <input type="checkbox" value="Microscopy"/> Microscopy
+                <br/>
+                <input type="checkbox" value="Papercraft"/> Papercraft
+                <br/>
+                <input type="checkbox" value="Photography"/> Photography
+                <br/>
+                <input type="checkbox" value="Programming"/> Programming
+                <br/>
+                <input type="checkbox" value="Rocketry"/> Rocketry
+                <br/>
+                <input type="checkbox" value="Theatre"/> Theatre
+                <br/>
+              </td>
+            </tr>
+          </table>
+        </td>
+        <td valign="top">
+          <div id="entryContainer">
+            <span style="color:gray; font-size:10pt">
+              Click below to load post.
+            </span>
+          </div>
+          <div>
+            <iframe id="previewFrame"></iframe>
+          </div>
+          <div style="margin:10px 0px 10px 0px">
+            <button onclick="getNewEntry()">Get new entry</button>
+            <button id="blogThisEntryButton" onclick="populatePostContent();">
+              Blog about this entry
+            </button>
+          </div>
+          <div id="statusContainer"></div>    
+          <div id="bloggerForms" style="display:none">
+            <select id="blogSelect" onchange="changeSelectedBlog(this)">
+              <option value="">- CHOOSE A BLOG -</option>
+            </select>
+            <div>
+              <textarea id="newPostContent"></textarea>
+              <br/>
+              <button onclick="addNewPost()">Submit post</button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

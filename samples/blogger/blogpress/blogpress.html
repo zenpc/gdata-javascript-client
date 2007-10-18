@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>blog.press</title>
+<script src="http://www.google.com/jsapi?key=ABQIAAAA-O3c-Om9OcvXMOJXreXHAxTZdFmpiU8vv3PBIA-hr88t-5BzzxSWLKKXiJcvC2EABsDlfXq6gJWAxA"
+type="text/javascript"></script>
+<script type="text/javascript">
+  google.load("gdata", "1.x");
+</script>
+<script type="text/javascript" src="blogpress.js"></script>
+<link rel="stylesheet" type="text/css" href="blogpress_styles.css">
+</head>
+<body onload="init()">
+<table style="width:100%" cellpadding="0" cellspacing="0">
+<tr>
+<td class="header" style="width:60%">
+<img src="images/blogpress.png" alt="Blog.press (Blogger Client)"/>
+</td>
+<td class="header" style="text-align:right">
+Choose blog: 
+<select id="blogSelect" onchange="updateCurrentBlogNum()">
+</select>
+<input id="authButton" type="button" value="Authenticate" onclick="loginOrLogout()"/>
+</td>
+</tr>
+<tr>
+<tr>
+<td class="divider" colspan="2">
+<!-- nothing here! -->
+</td>
+</tr>
+<td class="subheader" colspan="2">
+<table>
+  <tr>
+   <td class="sublink" id="sublink0">
+     <a href="javascript:switchView(0)" id="sublink0a">Show All Posts</a></td>
+   <td class="sublink" id="sublink1">
+     <a href="javascript:switchView(1)" id="sublink1a">Create New Post</a></td>
+  </tr>
+</table>
+</td>
+</tr>
+</table>
+
+<br/>
+
+<div id="statusDiv" class="centered" style="color:#ff0000">
+Status messages will appear here (errors, syncs, etc).
+</div>
+
+<br/>
+
+<div id="showAllPostsDiv" class="centered" style="display: none;">
+<div id="loginNotice" style="color:#cc0000; font-weight:bold; display:none">
+  Because this is a third-party app that uses your Google account authentication, you'll need to grant access to it by clicking the "Login" button. 
+</div>
+</div>
+
+<div id="createOrEditDiv" class="centered" style="display: none;">
+  <input type="hidden" id="blogPostEditUri"></input>
+  <table style="width:100%">
+  <tr><td>Title</td></tr>
+  <tr><td>
+  <input type="text" id="blogPostTitleInput" style="width:100%"></input>
+  </td></tr>
+  <tr><td>Post</td></tr>
+  <tr><td>
+  <textarea rows="10" id="blogPostTextArea" style="width:100%"></textarea>
+  </td></tr>
+  <tr><td>Tags (separate multiple tags with commas: cats, pet food, dogs)</td></tr>
+  <tr><td>
+  <input type="text" id="blogPostCategoriesInput" style="width:100%"></input>
+  </td></tr>
+  <tr><td style="text-align: right">
+  <input type="button" id="draftButton" value="Save Draft" onclick="insertOrUpdatePostEntry(true);"></input>
+  <input type="button" id="publishButton" value="Publish" onclick="insertOrUpdatePostEntry();"></input>
+  </td></tr>
+  </table>
+</div>
+
+</body>
+
+</html>
+
