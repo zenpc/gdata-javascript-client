@@ -1,0 +1,209 @@
+<html>
+<head>
+<title>CalendBlogger</title>
+<meta name="Keywords" content="">
+<meta name="Description" content="">
+</head>
+
+<link rel="stylesheet" type="text/css" href="style.css" />
+<script src="http://www.google.com/jsapi?key=ABQIAAAArM7h3NX7hYkBySUFFdiEOhQZv7UVnG3xyXTtHRDCeMYh9hYDFxQJbwP-vTetl4j39wK002gT6FWFfw" type="text/javascript"></script>
+<script type="text/javascript" src="http://jqueryjs.googlecode.com/files/jquery-1.1.4.pack.js"></script>
+<script type="text/javascript" src="main.js"></script>
+
+<body>
+<img src='images/Logo_25wht.gif' id=logo>
+<div id=main>
+
+  <h3>CalendBlogger</h3>  
+
+  <div>
+   <b>Introduction</b><br>
+   CalendBlogger demonstrates the usage of combining both the 
+   Blogger JavaScript API and the Google Calendar Data JavaScript API.  
+   It allows the user to query his/her events on Google Calendar within a specific date range, 
+   and submit these events as a blog entry to blogger directly.
+  </div>
+  
+  <br>
+  
+  <div>
+   <b>How it works</b><br>
+    1. Login with AuthSub to your Google account for Calendar and Blogger.<br>
+    2. Select a date range and all events within range will be displayed.<br>
+    3. Edit the content of events by clicking on the display panel.<br>
+    4. Click on "Blog >>>" to submit the entry to Blogger!<br>
+  </div>
+  
+  <br>
+  
+  <div>
+   <b>Additional resources</b><br>
+		For more information on the Blogger JavaScript API, 
+		Please see the <a href="http://code.google.com/apis/blogger/developers_guide_protocol.html">developer guide</a>. 
+		If you have any question, please join the discussion in
+		<a href="http://groups.google.com/group/bloggerDev">discussion group</a>. <br>
+		For more information on the Calendar Data JavaScript API, 
+		Please see the <a href="http://code.google.com/apis/calendar/developers_guide_js.html">developer guide</a>. 
+		If you have any question, please join the discussion in
+		<a href="http://groups.google.com/group/google-calendar-help-dataapi">discussion group</a>. <br>
+  </div>
+  
+  <br><br>
+  <div id=calendarMain>
+
+    <input type=button id='calendarLogin' value='Calendar Login'>
+    <br><br>
+
+      <select id=startYear>
+		<option value ="2008">2008</option>
+		<option value ="2007">2007</option>
+        <option value ="2006">2006</option>
+        <option value ="2005">2005</option>
+        <option value ="2004">2004</option>
+        <option value ="2003">2003</option>
+        <option value ="2002">2002</option>
+        <option value ="2001">2001</option>
+        <option value ="2000">2000</option>
+      </select>
+
+      <select id=startMonth>
+        <option value ="0">Jan</option>
+        <option value ="1">Feb</option>
+        <option value ="2">Mar</option>
+        <option value ="3">Apr</option>
+        <option value ="4">May</option>
+        <option value ="5">Jun</option>
+        <option value ="6">Jul</option>
+        <option value ="7">Aug</option>
+        <option value ="8">Sep</option>
+        <option value ="9">Oct</option>
+        <option value ="10">Nov</option>
+        <option value ="11">Dec</option>
+      </select>
+
+      <select id=startDate>
+        <option value ="1">1</option>
+        <option value ="2">2</option>
+        <option value ="3">3</option>
+        <option value ="4">4</option>
+        <option value ="5">5</option>
+        <option value ="6">6</option>
+        <option value ="7">7</option>
+        <option value ="8">8</option>
+        <option value ="9">9</option>
+        <option value ="10">10</option>
+        <option value ="11">11</option>
+        <option value ="12">12</option>
+        <option value ="13">13</option>
+        <option value ="14">14</option>
+        <option value ="15">15</option>
+        <option value ="16">16</option>
+        <option value ="17">17</option>
+        <option value ="18">18</option>
+        <option value ="19">19</option>
+        <option value ="20">20</option>
+        <option value ="21">21</option>
+        <option value ="22">22</option>
+        <option value ="23">23</option>
+        <option value ="24">24</option>
+        <option value ="25">25</option>
+        <option value ="26">26</option>
+        <option value ="27">27</option>
+        <option value ="28">28</option>
+        <option value ="29">29</option>
+        <option value ="30">30</option>
+        <option value ="32">31</option>
+      </select>
+      
+      to
+
+      <select id=endYear>
+	    <option value ="2008">2008</option>
+        <option value ="2007">2007</option>
+        <option value ="2006">2006</option>
+        <option value ="2005">2005</option>
+        <option value ="2004">2004</option>
+        <option value ="2003">2003</option>
+        <option value ="2002">2002</option>
+        <option value ="2001">2001</option>
+        <option value ="2000">2000</option>
+      </select>
+
+      <select id=endMonth>
+        <option value ="0">Jan</option>
+        <option value ="1">Feb</option>
+        <option value ="2">Mar</option>
+        <option value ="3">Apr</option>
+        <option value ="4">May</option>
+        <option value ="5">Jun</option>
+        <option value ="6">Jul</option>
+        <option value ="7">Aug</option>
+        <option value ="8">Sep</option>
+        <option value ="9">Oct</option>
+        <option value ="10">Nov</option>
+        <option value ="11">Dec</option>
+      </select>
+
+      <select id=endDate>
+        <option value ="1">1</option>
+        <option value ="2">2</option>
+        <option value ="3">3</option>
+        <option value ="4">4</option>
+        <option value ="5">5</option>
+        <option value ="6">6</option>
+        <option value ="7">7</option>
+        <option value ="8">8</option>
+        <option value ="9">9</option>
+        <option value ="10">10</option>
+        <option value ="11">11</option>
+        <option value ="12">12</option>
+        <option value ="13">13</option>
+        <option value ="14">14</option>
+        <option value ="15">15</option>
+        <option value ="16">16</option>
+        <option value ="17">17</option>
+        <option value ="18">18</option>
+        <option value ="19">19</option>
+        <option value ="20">20</option>
+        <option value ="21">21</option>
+        <option value ="22">22</option>
+        <option value ="23">23</option>
+        <option value ="24">24</option>
+        <option value ="25">25</option>
+        <option value ="26">26</option>
+        <option value ="27">27</option>
+        <option value ="28">28</option>
+        <option value ="29">29</option>
+        <option value ="30">30</option>
+        <option value ="32">31</option>
+      </select>
+
+    <input type=button id='calendarRun' value='Get Events'>
+
+    <br><br>
+    <div class=grayout>[ Display is click-editable ]</div>
+    <div id=display>
+    </div>
+  </div>
+
+  <div id=controlMain>
+        <input type=button id='bloggerRun' value='Blog >>>'>
+  </div>
+
+  <div id=blogMain>
+    <input type=button id='bloggerLogin' value='Blogger Login'>
+    <br><br>
+    
+    <select id=blogChooser>
+    </select>
+    
+    <br><br>
+    <iframe id=bloggerIframe src="" frameborder="0" scrolling="yes" />
+  </div>
+
+</div>
+
+
+
+</body>
+</html>

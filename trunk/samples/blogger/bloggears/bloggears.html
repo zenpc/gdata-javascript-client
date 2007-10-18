@@ -1,0 +1,98 @@
+<html>
+<head>
+<title>blog.gears</title>
+<script type="text/javascript" src="jsapi.js"></script>
+<script type="text/javascript" src="gearsdb.js"></script>
+<script type="text/javascript" src="bloggears.js"></script>
+<link rel="stylesheet" type="text/css" href="bloggears_styles.css">
+</head>
+<body onload="init()">
+<table style="width:100%" cellpadding="0" cellspacing="0">
+<tr>
+<td class="header" style="width:60%">
+<img src="images/bloggears.png" alt="Blog.gears (Blogger Offline)"/>
+</td>
+<td class="header" style="text-align:right">
+Choose blog: 
+<select id="blogSelect" onchange="updateCurrentBlogNum()">
+</select>
+<input id="authButton" type="button" value="Authenticate" onclick="loginOrLogout()"/>
+</td>
+</tr>
+<tr>
+<tr>
+<td class="divider" colspan="2">
+<!-- nothing here! -->
+</td>
+</tr>
+<td class="subheader" colspan="2">
+<table>
+  <tr>
+   <td class="sublink" id="sublink0">
+     <a href="javascript:switchView(BP_VIEWMODE.SHOWPOSTS)" id="sublink0a">Show All Posts</a></td>
+   <td class="sublink" id="sublink1">
+     <a href="javascript:switchView(BP_VIEWMODE.CREATEPOST)" id="sublink1a">Create New Post</a></td>
+   <td class="sublink" id="sublink2">
+     <a href="javascript:switchView(BP_VIEWMODE.ABOUT)" id="sublink2a">About This Sample</a></td>
+  </tr>
+</table>
+</td>
+</tr>
+</table>
+
+<br/>
+<div id="statusDiv" class="centered" style="color:#ff0000">
+Status messages will appear here (errors, syncs, etc).
+</div>
+
+<br/>
+
+<div id="aboutDiv" class="centered" style="display:none;">
+<div id="loginNotice" style="color:#cc0000; font-weight:bold; display:none">
+  Because this is a third-party app that uses your Google account authentication, you'll need to grant access to it by clicking the "Login" button. 
+</div>
+<p>
+  This is a sample that demonstrates combining the Gdata JavaScript Client Library with Google Gears to create a Blogger app that can still be used offline. If you'd just like to see how to create a Blogger app without offline capability, check out <a>this example</a> instead. If you'd like to use this app but do not have Gears installed yet, <a href="http://gears.google.com/">get it here</a>.
+</p>
+
+<p>
+  If you're interested in how this sample works, you can read through the code and comments in <a href="bloggears.js">bloggears.js</a>. You can also check out the short <a href="http://docs.google.com/Presentation?id=dggjrx3s_1665hgr477">slideset</a> describing the functionality. The image below is from those slides.
+</p>
+<a href="http://docs.google.com/Presentation?id=dggjrx3s_1665hgr477" target="_blank">
+<img src="images/bloggears_diagram.jpg">
+</a>
+
+</div>
+
+<div id="showAllPostsDiv" class="centered" style="display: none;">
+</div>
+
+<div id="createOrEditDiv" class="centered" style="display: none;">
+  <input type="hidden" id="blogPostEditUri"></input>
+  <input type="hidden" id="blogPostId"></input>
+  <input type="hidden" id="blogPostHtmlHref"></input>
+  <table style="width:100%">
+  <tr><td>Title</td></tr>
+  <tr><td>
+  <input type="text" id="blogPostTitleInput" style="width:100%"></input>
+  </td></tr>
+  <tr><td>Post</td></tr>
+  <tr><td>
+  <textarea rows="10" id="blogPostTextArea" style="width:100%"></textarea>
+  </td></tr>
+  <tr><td>Tags (separate multiple tags with commas: cats, pet food, dogs)</td></tr>
+  <tr><td>
+  <input type="text" id="blogPostCategoriesInput" style="width:100%"></input>
+  </td></tr>
+  <tr><td style="text-align: right">
+  <input type="button" id="draftButton" value="Save Draft" onclick="savePost(true);"></input>
+  <input type="button" id="publishButton" value="Publish" onclick="savePost(false);"></input>
+  </td></tr>
+  </table>
+</div>
+
+
+</body>
+
+</html>
+
