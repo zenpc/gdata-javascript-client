@@ -188,7 +188,11 @@ function receiveBlogList(blogList) {
  */
 function logout() {
   google.accounts.user.logout();
-  determineEditorVisibility();
+  // Hide the editor div and make the login button visible.
+  var blogThisDiv = document.getElementById(blogThis.EDITOR_DIV);
+  var loginButton = document.getElementById(blogThis.LOGIN_BUTTON);
+  blogThisDiv.style.display = 'none';
+  loginButton.style.display = 'inline';
 };
 
 /**
