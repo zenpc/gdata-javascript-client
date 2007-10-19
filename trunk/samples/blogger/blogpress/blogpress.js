@@ -122,7 +122,7 @@ function changeStatus(status) {
  */
 function init() {
   BlogPress.service = new google.gdata.blogger.BloggerService(
-      'sample-bloggerOffline');
+      'GoogleInc-bloggerOffline-1');
 
   if (google.accounts.user.checkLogin(BLOGGER_AUTH_URL)) {
     el(BP_ID.AUTH_BUTTON).value = 'Logout';

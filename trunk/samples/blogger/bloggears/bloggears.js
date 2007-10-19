@@ -159,7 +159,7 @@ function init() {
   setupDB(); 
 
   BlogPress.service = 
-      new google.gdata.blogger.BloggerService('Google-BloggerOfflineSample-1');
+      new google.gdata.blogger.BloggerService('GoogleInc-BloggerOfflineSample-1');
 
   var token = google.accounts.user.checkLogin(BLOGGER_AUTH_URL);
   if (token) {
