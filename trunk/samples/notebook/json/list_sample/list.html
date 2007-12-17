@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!--
+/* Copyright (c) 2007 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<html>
+<head>
+<title>Google Notebook Views Example</title>
+<style>
+body {
+  font-family: sans-serif;
+  font-size: 83%;
+  margin: 0;
+}
+
+.header {
+  margin-bottom: 20px;
+  background-color: #efefef;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.imagecell {
+  padding-right: 10px;
+  width: 120px;
+}
+
+.itemtable {
+  margin-left: 5px;
+  margin-top: 5px;
+  table-layout: fixed;
+  width: 600px;
+}
+
+.pagetitle {
+  font-size: 200%;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.url {
+  width: 400px;
+  overflow: hidden;
+}
+</style>
+<script>
+
+/**
+ * Helper function to make a note of elementType
+ * with optional class and content.
+ */
+function create(elementType, opt_className, opt_content) {
+  var elt = document.createElement(elementType);
+  if (opt_className) {
+    elt.className = opt_className;
+  }
+  if (opt_content) {
+    elt.innerHTML = opt_content;
+  }
+  return elt;
+}
+
+/**
+ * Represents a single note.
+ */
+function Item(title, url, body, image, attributes) {
+  this.title = title;
+  this.url = url;
+  this.body = body;
+  this.image = image;
+  this.attributes = attributes;
+}
+
+/**
+ * Represents a collection of notes.
+ */
+function ItemSet(items) {
+  this.items = items;
+}
+
+/**
+ * Class that has a renderItem() method that places
+ * items in tables with images on the left.
+ */
+function ListRenderer() {
+}
+
+ListRenderer.prototype.renderItem = function(item) {
+  var elt = create("table", "itemtable");
+  var tbody = create("tbody");
+
+  var row = create("tr");
+  var cell = create("td", "imagecell");  
+  cell.vAlign = "top";
+  if (item.image) {
+    cell.innerHTML = "<img src='" + item.image + "' width=100px>";
+  }
+  row.appendChild(cell);
+
+  cell = create("td");
+  cell.vAlign = "top";
+  if (item.title && item.url) {
+    cell.appendChild(create("div", "title", item.title));
+    cell.appendChild(create("div", "url", "<a href='" + item.url + "'>" + item.url + "</a>"));
+  }
+  row.appendChild(cell);
+  
+  tbody.appendChild(row);
+  elt.appendChild(tbody);
+  return elt;
+};
+
+/**
+ * Not currently used, but has a renderItem() that shows each item in a
+ * rectangle.
+ */
+function CardRenderer() {
+}
+
+CardRenderer.prototype.renderItem = function(item) {
+  var html = [ "<div class='title'>", item.title, "</div>",
+    "<img class='image' src='", item.image || "", "'>",
+    "<div class='attribute'>$", item.attributes.price, "</div>" ];
+  var elt = document.createElement("div");
+  elt.className = "card";
+  elt.innerHTML = html.join("");
+  return elt;
+};
+
+/**
+ * Class to take a notebook feed and parse it into items.
+ */
+function NoteReader(opt_feed) {
+  if (opt_feed) {
+    this.readNotes(opt_feed);
+  }
+}
+
+NoteReader.prototype.readNotes = function(feed) {
+  var notes = feed.feed.entry;
+  var entries = []
+  for (var i = 0; i < notes.length; i++) {
+    entries.push(this.itemFromNote(notes[i]));
+  }
+  this.itemSet = new ItemSet(entries);
+};
+
+/**
+ * Extracts any image from the body of the note.
+ */
+NoteReader.prototype.imageFromBody = function(body) {
+  var match = /<img[^>]* src="?([^"> ]*)["> ]/.exec(body); //"
+  return match && match[1];
+};
+
+/**
+ * Extracts anything that appears to be a price from a note.
+ */
+NoteReader.prototype.priceFromBody = function(body) {
+  var match = /\$(\d+)/.exec(body);
+  return match && match[1];
+};
+
+/**
+ * Does the actual work of turning a note into an item.
+ */
+NoteReader.prototype.itemFromNote = function(note) {
+  var link = note.link[0];
+  var body = note.content.$t;
+  var price = this.priceFromBody(body);
+  return new Item(link.title, link.href,
+    body, this.imageFromBody(body), price ? { price: price } : {});
+};
+
+/**
+ * Constructor for object that lods a notebook and then renders it.
+ */
+function ItemController(renderer) {
+  this.renderer = renderer;
+}
+
+/**
+ * Method to call to load a notebook
+ */
+ItemController.prototype.loadNotebook = function(instanceName, userId, notebookId) {
+  this.userId = userId;
+  this.notebookId = notebookId;
+ 
+  var scriptNode = document.createElement("script");
+  scriptNode.src = "http://www.google.com/notebook/feeds/" +
+      userId + "/notebooks/" + notebookId +
+      "?alt=json-in-script&callback=" + instanceName + ".finishLoad";
+  document.body.appendChild(scriptNode);
+};
+
+/**
+ * Private callback when load finishes
+ */
+ItemController.prototype.finishLoad = function(feed) {
+  this.title = feed.feed.title.$t;
+  this.reader = new NoteReader(feed);
+  this.render(document.getElementById("content"));
+};
+
+/**
+ * Does actual rendering after data loads
+ */
+ItemController.prototype.render = function(elt) {
+  var items = this.reader.itemSet.items;
+  if (this.renderer.render) {
+    this.renderer.render(elt, items);
+  } else {
+    elt.innerHTML = "";
+
+    var title = create("div", "pagetitle");
+    document.title = this.title;
+    title.appendChild(document.createTextNode(this.title));
+   
+
+    var displayUrl = "http://www.google.com/notebook/public/" +
+        this.userId + "/" + this.notebookId;
+    var urlNode = create("div", "pageurl");
+    urlNode.innerHTML = "from <a href='" + displayUrl + "'>" + displayUrl + "</a> " +
+        "<br><a style='font-size: 83%;' href=javascript:changeNotebook()>Show a different notebook</a>";
+    
+    var header = create("div", "header");
+    header.appendChild(title);
+    header.appendChild(urlNode);
+    elt.appendChild(header);
+    for (var i = 0; i < items.length; i++) {
+      elt.appendChild(this.renderer.renderItem(items[i]));
+    }
+  }
+};
+
+var controller = new ItemController(new ListRenderer());
+
+function requestNotes() {
+  var userId = "06033914466213422152";
+  var notebookId = "BDQbSIgoQ3rSLh9Ii";
+
+  // Read any notebook URL from request line
+  var location = window.location.href;
+  var existingId = location.indexOf("?u=");
+  if (existingId) {
+    var notebookUrl = location.substring(existingId + 3);
+    var match;
+    if (match = /http:\/\/www.google.*?\/notebook\/public\/(\d+)\/([\w\d\-_]+)/.exec(notebookUrl)) {
+      userId = match[1];
+      notebookId = match[2];
+    }
+  }
+
+  // Request data feed
+  controller.loadNotebook("controller", userId, notebookId);
+}
+
+function changeNotebook() {
+  var location = window.location.href;
+  var existingId = location.indexOf("?u=");
+  location = location.substring(0, existingId);
+  window.location = location + "?u=" + prompt(
+      "Please enter your notebook URL (e.g. http://www.google.com/notebook/public/06033914466213422152/BDQbSIgoQ3rSLh9Ii)", "");
+}
+</script>
+</head>
+<body onload=requestNotes()>
+<div id="content">
+Loading...
+</div>
+</body>
+</html>
