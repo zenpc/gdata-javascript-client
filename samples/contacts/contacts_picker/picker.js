@@ -729,9 +729,25 @@ var Picker = {
         overflow: auto;\
       }\
       \
+      #' + containerId + ' div#picker_groups_pane li {\
+        overflow: hidden;\
+      }\
+      \
+      #' + containerId + ' div#picker_groups_pane li a {\
+        width: 9999%;\
+      }\
+      \
       #' + containerId + ' div#picker_contacts_pane {\
         position: static;\
         overflow: auto;\
+      }\
+      \
+      #' + containerId + ' div#picker_contacts_pane li {\
+        overflow: hidden;\
+      }\
+      \
+      #' + containerId + ' div#picker_contacts_pane li a {\
+        width: 9999%;\
       }\
       \
       #' + containerId + ' div#picker_info_pane {\
