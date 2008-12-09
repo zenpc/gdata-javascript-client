@@ -1,0 +1,58 @@
+body {
+  padding:10px;
+  font-size: 11px;
+}
+li {
+  list-style-type:none;
+  margin-bottom:10px;
+}
+h1,h2,h3 {
+  margin-top:0;
+}
+.error {
+  color:red;
+  font-weight:bold;
+}
+#settings {
+  padding:10px 0 15px 0;
+}
+#save {
+  clear:both;
+  margin-bottom:10px;
+}
+#data {
+  font-family: Georgia, "Myriad Pro", Verdana, Arial;
+  margin-left:1em;
+  padding:10px;
+  border:1px solid;
+  width:250px;
+  height:480px;
+  overflow:auto;
+  float:left;
+}
+#map_canvas {
+  float:left;
+  border:1px solid;
+  width:700px;
+  height:500px;
+}
+.thumb {
+  border:1px solid;
+  margin-right:8px;
+  width:50px;
+  height:50px;
+}
+#item_entry {
+  /*display:none;*/
+}
+input[type="text"] {
+  width:200px;
+  border:1px solid #666666;
+}
+textarea {
+  width:200px;
+  height:100px;
+  max-width:200px
+  max-height:100px;
+  border:1px solid #666666;
+}
