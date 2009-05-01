@@ -1,0 +1,19 @@
+#summary Details on whats new in each version of the JavaScript Client
+
+= Version 1.9 =
+
+  * Launched Analytics client.
+
+
+= Version 1.8 =
+
+  * Updates to AuthSubJS
+    * Support for "hd" parameter to indicate a particular hosted domain account to be accessed.
+    * Support for multi-scope (i.e. "http://www.google.com/calendar/feeds http://www.google.com/m8/feeds/").
+    * Support for multiple scopes per application.
+    * Added google.accounts.AuthSubStatus enum (LOGGED_OUT, LOGGING_IN, LOGGED_IN) and the google.accounts.user.getStatus() method to indicate the status of the user.
+    * Added the google.accounts.user.getScopes() method to return the scopes for which the user is current authenticated.
+  * ClientLogin
+    * Added "accountType" parameter to google.gdata.client.GoogleService.setUserCredentials(), which supports GOOGLE, HOSTED or HOSTED_OR_GOOGLE
+    * Calling setUserCredentials() multiple times with different credentials will reset the token
+  * Google Base client - Fixed bug where multiple attributes were not being set properly.
