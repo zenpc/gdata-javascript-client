@@ -5,7 +5,7 @@
  *     functionality of the Google Data JavaScript client library to interact
  *     with your Google Base items. The sample maps your geocoded items
  *     using the Google Maps API.
- * @author e.bidelman@google.com (Eric Bidelman)
+ * @author e.bidelman (Eric Bidelman)
  */
 
 // =============================== GLOBALS =====================================
