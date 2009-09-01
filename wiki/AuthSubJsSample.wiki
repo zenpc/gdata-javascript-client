@@ -2,9 +2,9 @@
 
 = Authenticating with some help from JQuery =
 
-Many APIs, including Google's APIs, expose public data via JavaScript; in Google APIs, this format is called [http://code.google.com/apis/gdata/json.html#Request json-in-script].  However, things get a little tricky when you want to access authenticated data from JavaScript.  The Google Data JavaScript Client uses a process called AuthSubJS to make authenticated requests to Google APIs from JavaScript.
+Many APIs, including Google's APIs, expose public data via !JavaScript; in Google APIs, this format is called [http://code.google.com/apis/gdata/json.html#Request json-in-script].  However, things get a little tricky when you want to access authenticated data from !JavaScript.  The Google Data !JavaScript Client uses a process called AuthSubJS to make authenticated requests to Google APIs from !JavaScript.
 
-The AuthSubJS process is similar to the standard [http://code.google.com/apis/accounts/docs/AuthSub.html AuthSub] process.  AuthSubJS offers a lot of power to developers.  However, since we are working with JavaScript, all communication between the user, the web application and Google must happen through browser redirects.  This can lead to a choppy user experience.  If the user isn't prepared for these redirects, they could start interacting with the application before its ready.  To prevent these types of usability issues, this application will use [http://jquery.com/ JQuery] to display a "loading" icon until the application is ready.
+The AuthSubJS process is similar to the standard [http://code.google.com/apis/accounts/docs/AuthSub.html AuthSub] process.  AuthSubJS offers a lot of power to developers.  However, since we are working with !JavaScript, all communication between the user, the web application and Google must happen through browser redirects.  This can lead to a choppy user experience.  If the user isn't prepared for these redirects, they could start interacting with the application before its ready.  To prevent these types of usability issues, this application will use [http://jquery.com/ JQuery] to display a "loading" icon until the application is ready.
 
 The sample asks the user to login, and then loads a list of the user's blogs from the Blogger API.  The code for the sample can be found here:
 
@@ -56,7 +56,7 @@ We are first going to add three separate divs to the page; replace the "TODO: HT
 }}}
 These three divs match the three states of AuthSubJS described above.  When the page first loads, we want to display a "loading" icon until we've determined what to show to the user.  Therefore, only the divLoggingIn div is visible; the other two divs are marked with "display: none".  The other two divs will be toggled visible as the user transitions between states.
 
-We are going to use JQuery to manage the transitions between divs.  JQuery's Effects library offers smooth transitions between two divs.  The JQuery JavaScript file can be downloaded from their site, but to make things easier, we're going to use the version of JQuery hosted at the [http://code.google.com/apis/ajaxlibs/documentation/#jquery Google AJAX Libraries API].  This infrastructure can be used to load both JQuery and the Google Data APIs.  Thes libraries are loaded by adding the following code to the section labeled "TODO: JavaScript code goes here.":
+We are going to use JQuery to manage the transitions between divs.  JQuery's Effects library offers smooth transitions between two divs.  The JQuery !JavaScript file can be downloaded from their site, but to make things easier, we're going to use the version of JQuery hosted at the [http://code.google.com/apis/ajaxlibs/documentation/#jquery Google AJAX Libraries API].  This infrastructure can be used to load both JQuery and the Google Data APIs.  Thes libraries are loaded by adding the following code to the section labeled "TODO: !JavaScript code goes here.":
 {{{
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
 <script type="text/javascript">
@@ -71,7 +71,7 @@ We are going to use JQuery to manage the transitions between divs.  JQuery's Eff
 
 </script>
 }}}
-The first line loads the Google JavaScript loader file, while the two google.load{} methods load the appropriate JavaScript libraries.  Notice the "packages: ['blogger']" parameter when loading the Google Data JavaScript client.  This tells the loader to only load the Blogger library; this reduces the JavaScript size by ignore services we don't need (such as Calendar or Contacts).  You can learn the details about loading the Google Data JavaScript Client [http://code.google.com/apis/gdata/client-js.html#Acquire_Library here].
+The first line loads the Google !JavaScript loader file, while the two google.load{} methods load the appropriate !JavaScript libraries.  Notice the "packages: ['blogger']" parameter when loading the Google Data !JavaScript client.  This tells the loader to only load the Blogger library; this reduces the !JavaScript size by ignore services we don't need (such as Calendar or Contacts).  You can learn the details about loading the Google Data !JavaScript Client [http://code.google.com/apis/gdata/client-js.html#Acquire_Library here].
 
 Now that our libraries are loaded, lets add a simple helper function to help transition between divs:
 {{{
@@ -103,11 +103,11 @@ google.setOnLoadCallback(function() {
   }
 });
 }}}
-The function passed to google.setOnLoadCallback() is called once all the libraries have loaded.  Its sort of like a body onload() method for JavaScript.
+The function passed to google.setOnLoadCallback() is called once all the libraries have loaded.  Its sort of like a body onload() method for !JavaScript.
 
 The logic inside this method is fairly simple: look at the user's AuthSubJS status, and display the appropriate div.  The google.accounts.user.getStatus() method figures out all the details of where the user is in the AuthSubJS process.  If the user is in the process of logging in, the app does nothing, since the divLoggingIn div is already displayed.  If the user is logged out, the app transitions to the divLoggedOut div.  Otherwise the user is logged in and the app transitions to the divLoggedIn div (and load the user's data).
 
-When the application first loads, the user will be logged out.  Clicking the "login" link will initiate the login process.  The login link in the divLoggedOut div is tied to the login() javascript function:
+When the application first loads, the user will be logged out.  Clicking the "login" link will initiate the login process.  The login link in the divLoggedOut div is tied to the login() !JavaScript function:
 {{{
 function login() {
   var scope = 'http://www.blogger.com/feeds';
