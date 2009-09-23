@@ -7,7 +7,8 @@
   * Added support for ETags during retrievals/updates/deletes.
   * Added support for passing parameters to AuthSubJS.
   * Updated AuthSubJS cookie age to 63072000.
-  * Support for XML content in the KML content field of the Maps API
+  * Support for XML content in the KML content field of the Maps API.
+  * New samples for AuthSubJS, conditional gets and conditional updates.
   * Removed deprecated elements.
 
 = Version 1.10 = 
