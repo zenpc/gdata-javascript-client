@@ -1,0 +1,374 @@
+<html>
+  <head>
+    <title>Conditional Retrival in Blogger Using the Google Data JavaScript
+           Client</title>
+    <link rel="stylesheet" href="main.css" type="text/css">
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      // Load the Blogger JavaScript Client.
+      google.load('gdata', '2.x', { packages : ['blogger'], other_params : 'debug=1' });
+
+      // The Blogger scope.
+      var scope = 'http://www.blogger.com/feeds/';
+
+      // The google.gdata.blogger.BloggerService object used to make API requests.
+      var service = null;
+
+      // A cache of the posts for the current blog.
+      var blogPostCache = null;
+
+      // An internal counter used to determine when to refresh the feed.
+      var count = 0;
+
+      // Whether or not a feed is currently being refreshed.
+      var running = true;
+
+      // Used to determine how long a feed refresh takes.
+      var startTime = null;
+
+      /** Alerts the user if there is an error. */
+      function errorHandler(e) {
+        var req = e.cause;
+        if (req && req.getStatus() == 304) {
+          endTimer();
+          updateLastRequest();
+          updateLastResponseCode(304);
+          running = false;
+        } else {
+          alert(e.cause ? e.cause.statusText : e.message);
+        }
+      }
+
+      /** Starts the timer. */
+      function startTimer() {
+        startTime = new Date();
+      }
+
+      /** Stops the timer and shows the runtime on the page. */
+      function endTimer() {
+        var diff = (new Date()).getTime() - startTime.getTime();
+        startTime = null;
+        var msg = 'Last Request Time:<br /><b>' + diff + ' ms</b><br /><br />';
+        document.getElementById('lastRequestTime').innerHTML = msg;
+      }
+
+      /** Formats the date into a compact, human-readable format. */
+      function formatDate(date) {
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+      }
+
+      /**
+       * Update the "Last Request" field on the page with the time of the last
+       * request to the server.
+       */
+      function updateLastRequest() {
+        var msg = 'Last Request:<br /><b>' + formatDate(new Date()) +
+            '</b><br /><br />';
+        document.getElementById('lastRequest').innerHTML = msg;
+      }
+
+      /**
+       * Update the "Last Response Code" field on the page with the last http response
+       * code received from the server.
+       */
+      function updateLastResponseCode(code) {
+        var msg = 'Last Response Code:<br /><b>' + code + '</b><br /><br />';
+        document.getElementById('lastResponseCode').innerHTML = msg;
+        if (code == 200) {
+          updateLast200Response();
+        }
+      }
+
+      /**
+       * Update the "Last 200 Response" field on the page with the time of the last
+       * 200 response from the server.  The 200 response indicates that the etag is
+       * invalid and new data has been received from the server.
+       */
+      function updateLast200Response() {
+        var msg = 'Last 200 Response:<br /><b>' + formatDate(new Date()) +
+            '</b><br /><br />';
+        document.getElementById('last200Response').innerHTML = msg;
+      }
+
+      /** Displays the feed entries on the page. */
+      function displayEntries(feedRoot) {
+        var table = document.createElement('table');
+        var thead = document.createElement("thead");
+        thead.style.height = '0px';
+        table.appendChild(thead);
+        var tfoot = document.createElement("tfoot");
+        tfoot.style.height = '0px';
+        table.appendChild(tfoot);
+        var tbody = document.createElement("tbody");
+        var tr = document.createElement('tr');
+        var td = document.createElement('th');
+        td.innerHTML = 'Post Title';
+        tr.appendChild(td);
+        td = document.createElement('th');
+        td.innerHTML = 'Updated';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        var entries = feedRoot.feed.getEntries();
+        for (var i = 0; i < entries.length; i++) {
+          var entry = entries[i];
+          tr = document.createElement('tr');
+          td = document.createElement('td');
+          td.innerHTML = entry.getTitle().getText();
+          tr.appendChild(td);
+          td = document.createElement('td');
+          td.innerHTML = formatDate(entry.getUpdated().getValue().getDate());
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+        var parentElem = document.getElementById('entriesDiv');
+        removeAllChildren(parentElem);
+        parentElem.appendChild(table);
+      }
+
+      /**
+       * Handles the response from a feed request.  Logs the times and status of the
+       * request and displays the entries on the page.
+       */
+      function loadBlogPostHandler(feedRoot) {
+        endTimer();
+        updateLastRequest();
+        if (!feedRoot || !feedRoot.feed) {
+          // 304 response
+          updateLastResponseCode(304);
+        } else {
+          // 200 response
+          blogPostCache = feedRoot;
+          updateLastResponseCode(200);
+          displayEntries(feedRoot);
+        }
+        running = false;
+      }
+
+      /** Loads a blog feed from the server. */
+      function loadBlogPost() {
+        running = true;
+        var select = document.getElementById('blogListSelect');
+        var feedUri = select.options[select.selectedIndex].value;
+        var opt_params = {};
+        if (blogPostCache && document.getElementById('useEtagCheckbox').checked) {
+          var etag = blogPostCache.feed.getEtag();
+          if (etag) {
+            // If the cached feed has an etag, use this etag in the request.
+            opt_params['etag'] = etag;
+          }
+        }
+        startTimer();
+        service.getBlogPostFeed(feedUri, loadBlogPostHandler, errorHandler,
+            opt_params);
+      }
+
+      /** Display a drop-down list of the user's blog. */
+      function loadBlogListHandler(feedRoot) {
+        var select = document.createElement('select');
+        select.id = 'blogListSelect';
+        var entries = feedRoot.feed.getEntries();
+        for (var i = 0; i < entries.length; i++) {
+          var entry = entries[i];
+          var option = document.createElement('option');
+          option.text = entry.getTitle().getText();
+          option.value = entry.getEntryPostLink().getHref();
+          select.options.add(option);
+        }
+        var blogListDiv = document.getElementById('blogListDiv');
+        blogListDiv.appendChild(select);
+        blogListDiv.appendChild(document.createTextNode(' '));
+        var blogLink = document.createElement('a');
+        blogLink.href = 'http://www.blogger.com';
+        blogLink.innerHTML = 'Edit posts';
+        blogLink.target = '_blank';
+        blogListDiv.appendChild(blogLink);
+        loadBlogPost();
+      }
+
+      /** Load the user's blog. */
+      function loadBlogList() {
+        var feedUri = 'http://www.blogger.com/feeds/default/blogs';
+        service.getBlogFeed(feedUri, loadBlogListHandler, errorHandler);
+      }
+
+      /**
+       * This timer fires every second and checks if the feed should be refreshed
+       * from the server.
+       */
+      function checkLoad() {
+        var autoLoad = document.getElementById('autoReloadCheckbox').checked;
+        if (!autoLoad) {
+          count = 0;
+          return;
+        }
+        if (running) {
+          return;
+        }
+        var time = document.getElementById('autoReloadText').value;
+        if (!time) {
+          time = 10;
+        }
+        if (count < time) {
+          count++;
+          return;
+        }
+        loadBlogPost();
+        count = 0;
+      }
+
+      /** Remove all children from a DOM node. */
+      function removeAllChildren(node) {
+        if (node.hasChildNodes()) {
+          while (node.childNodes.length >= 1) {
+            node.removeChild(node.firstChild);
+          }
+        }
+      }
+
+      /** Log the user in to the sample. */
+      function login() {
+        google.accounts.user.login(scope);
+      }
+
+      /** Log the user out of the sample. */
+      function logout() {
+        google.accounts.user.logout(function() {
+          window.location.reload();
+        });
+      }
+
+      /**
+       * Checks whether the user is logged in or not.  If the user is not logged in,
+       * Displays the login button.  If the user is logged in, load the user's blogs
+       * and entry, and then start polling for an updated feed.
+       */
+      function checkStatus() {
+        service = new google.gdata.blogger.BloggerService('jsv2test');
+        var status = google.accounts.user.getStatus();
+        if (status == google.accounts.AuthSubStatus.LOGGING_IN) {
+          return;
+        } else if (status == google.accounts.AuthSubStatus.LOGGED_OUT) {
+          document.getElementById('loggingin').style.display = 'none';
+          document.getElementById('loggedout').style.display = 'block';
+        } else {
+          document.getElementById('loggingin').style.display = 'none';
+          document.getElementById('loggedin').style.display = 'block';
+          loadBlogList();
+          setInterval(checkLoad, 1000);
+        }
+        return status;
+      }
+
+      // Call the checkStatus() method after the Google Data library is loaded.
+      google.setOnLoadCallback(checkStatus);
+    </script>
+  </head>
+  <body>
+  
+    <div id="header"><h2>Conditional Retrival in Blogger Using the Google Data JavaScript Client</h2></div>
+    
+    <div id="loggingin">
+      <img src="ajax-loader.gif" />
+    </div>
+
+    <div id="loggedout" style="display: none;">
+      <a href="#" onclick="login(); return false;" style="font-size: 20pt;">login</a>
+    </div>
+
+    <div id="loggedin" style="display: none;">
+      <div id="sidebar">
+
+        <a href="#" onclick="logout(); return false;">logout</a><br /><br />
+
+        <div class="sidebarbox" id="optionsDiv">
+          <div class="sidebarboxtitle">Options</div>
+          <div class="sidebarboxcontent">
+            Blog: <div id="blogListDiv"></div>
+            <div id="useEtagDiv">
+              <input type="checkbox" id="useEtagCheckbox" checked="checked" />
+              Use ETag?
+            </div>
+            <div id="autoReloadDiv">
+              <input type="checkbox" id="autoReloadCheckbox" checked="checked" />
+              Auto reload every
+              <input type="text" size="1" id="autoReloadText" value="5" /> secs
+            </div>
+            <div id="manualReloadDiv">
+              <a href="#" onclick="loadBlogPost(); return false;">manual reload</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebarbox" id="statsDiv">
+          <div class="sidebarboxtitle">Stats</div>
+          <div class="sidebarboxcontent">
+            <div id="lastRequest"></div>
+            <div id="lastResponseCode"></div>
+            <div id="lastRequestTime"></div>
+            <div id="last200Response"></div>
+          </div>
+        </div>
+
+        <div class="sidebarbox">
+          <div class="sidebarboxtitle">Posts</div>
+          <div class="sidebarboxcontent" id="entriesDiv">
+          </div>
+        </div>
+
+      </div>
+      
+      <div id="main">
+      
+      <p>This sample shows you how to make conditional retrievals using the
+      Google Data JavaScript Client.  You can view the source of this page
+      for more details as well as comments on how to use etags in your
+      requests.</p>
+      
+      <p>This sample polls one of your blogs every few seconds, and displays the
+      results in the "Posts" section on the right.</p>
+      
+      <p>The "Stats" section shows you more information about the request:
+      <ul>
+        <li><b>Last Request</b> indicates the time the feed was last retrieved.</li>
+        <li><b>Last Response Code</b> indicates the http response of the last
+            request. "200" means that the blog has been updated, and the feed
+            was retrieved from the server.  "304" means that the feed hasn't
+            been modified, and there is no need to update the blog posts.</li>
+        <li><b>Last Request Time</b> shows how long the last request took.</li>
+        <li><b>Last 200 Response</b> is the last time the blog posts were loaded
+            from the server.</li>
+      </ul></p>
+      
+      <p>When the page first loads, the reponse code is "200", since the posts
+      are freshly loaded from the server.  Every request after that should be
+      a "304", since the posts haven't changed.</p>
+      
+      <p>If you'd like to trigger a "200" response, 
+      <a href="http://www.blogger.com/" target="_blank">visit your blog</a> and
+      update or create a post.  After a few seconds, the "304" response will
+      change to a "200", and the list of posts will update.</p>
+      
+      <p>The "Options" section lets you change a few options in this sample:
+      <ul>
+        <li>The <b>Blog</b> pulldown lets you change the blog to load from.</li>
+        <li>Uncheck the <b>Use ETag</b> checkbox to prevent the sample from
+        using etags.  This is useful for comparing "200" responses to "304"
+        responses.</li>
+        <li>Uncheck the <b>Auto reload</b> checkbox to stop the sample from
+        refreshing the page.  When this checkbox is unchecked, you can use the
+        "manual reload" link to manually reload the posts.  When the checkbox is
+        checked, you can also adjust the polling time.</li>
+      </ul></p>
+      
+      <p>View the source of this page to see the code and read the comments on
+      how to use etags in your requests.</p>
+      
+      </div>
+      
+    </div>
+
+
+
+  </body>
+</html>
