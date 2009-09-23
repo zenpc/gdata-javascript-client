@@ -1,0 +1,113 @@
+<html>
+  <head>
+    <title>Conditional Updates in Contacts Using the Google Data JavaScript Client</title>
+    <style type="text/css">
+    body,
+    html {
+      margin:0;
+      padding:0;
+      color:#000;
+      text-align: center;
+    }
+    </style>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load('gdata', '2.x', { packages : ['contacts'] });
+
+      var scope = 'http://www.google.com/m8/feeds';
+      var feedUri = 'http://www.google.com/m8/feeds/groups/default/full';
+      var GROUP_TITLE = 'JavaScript Client Sample';
+      var service;
+
+      function createContactGroup() {
+        var entry = new google.gdata.contacts.ContactGroupEntry();
+        entry.setTitle(google.gdata.atom.Text.create(GROUP_TITLE));
+        service.insertEntry(feedUri, entry, groupExists, errorHandler,
+            google.gdata.contacts.ContactGroupEntry);
+      }
+
+      function groupExists() {
+        window.location = 'index2.html';
+      }
+
+      function groupDoesNotExist() {
+        document.getElementById('loggingin').style.display = 'none';
+        document.getElementById('loggedin').style.display = 'block';
+      }
+
+      function loadContactGroupFeed() {
+        service.getContactGroupFeed(feedUri, loadContactGroupFeedHandler,
+            errorHandler);
+      }
+
+      function loadContactGroupFeedHandler(feedRoot) {
+        var entries = feedRoot.feed.getEntries();
+        for (var i = 0; i < entries.length; i++) {
+          var groupEntry = entries[i];
+          var groupTitle = groupEntry.getTitle().getText();
+          if (groupTitle == GROUP_TITLE) {
+            groupExists();
+            return;
+          }
+        }
+        groupDoesNotExist();
+      }
+
+      function errorHandler(e) {
+        alert(e.cause ? e.cause.statusText : e.message);
+      }
+
+      function login() {
+        google.accounts.user.login(scope);
+      }
+
+      function logout() {
+        google.accounts.user.logout(function() {
+          window.location.reload();
+        });
+      }
+
+      function checkStatus() {
+        service = new google.gdata.contacts.ContactsService('jsv2test');
+        var status = google.accounts.user.getStatus();
+        if (status == google.accounts.AuthSubStatus.LOGGING_IN) {
+          return;
+        } else if (status == google.accounts.AuthSubStatus.LOGGED_OUT) {
+          document.getElementById('loggingin').style.display = 'none';
+          document.getElementById('loggedout').style.display = 'block';
+        } else {
+          loadContactGroupFeed();
+        }
+        return status;
+      }
+
+      google.setOnLoadCallback(checkStatus);
+    </script>
+  </head>
+  <body>
+
+    <div id="loggingin">
+      <img src="ajax-loader.gif" />
+    </div>
+
+    <div id="loggedout" style="display: none;">
+      <a href="#" onclick="login(); return false;" style="font-size: 20pt;">login</a>
+    </div>
+
+    <div id="loggedin" style="display: none;">
+    <div id="content" style="text-align: left; width: 800px; margin: auto;">
+      <h2>Conditional Updates in Contacts Using the Google Data JavaScript Client</h2>
+        <p>In order to use this sample, this app first needs to create a Contact
+        Group named "<b>JavaScript Client Sample</b>" (if it doesn't already exist).
+        Any new contact created, edited or deleted by this sample will be created 
+        in this group.  This will prevent your actual contacts from being 
+        affected by this sample.  You can delete this group once you are done
+        with this sample. In order to create this new Contact Group, click the 
+        link below.</p>
+        <p style="font-size: 20pt; text-align: center;">
+        <a href="#" onclick="createContactGroup(); return false;">Create Contact Group</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

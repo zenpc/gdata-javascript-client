@@ -1,0 +1,71 @@
+body,
+html {
+  margin:0;
+  padding:0;
+  color:#000;
+  text-align: center;
+}
+body {
+  min-width:750px;
+}
+#header {
+  padding: 0px 10px 10px 10px;
+}
+#loggedin {
+  font-size:84%;
+  font-family:Tahoma,Geneva,sans-serif;
+  margin:0 auto;
+  width:800px;
+  text-align: left;
+}
+#sidebar {
+  float:right;
+  width:350px;
+  padding: 10px 10px 10px 10px;
+}
+#main {
+  float:left;
+  width:410px;
+  padding: 0px 10px 10px 10px;
+}
+#footer {
+  clear:both;
+  margin: 10px 10px 10px 10px;
+}
+.sidebarbox {
+  border: 1px solid #003399;
+  margin: 0px 0px 15px 0px;
+}
+.sidebarboxtitle {
+  background: #003399;
+  color: #ffffff;
+  padding: 3px 3px 3px 3px;
+  font-weight: bold;
+}
+.sidebarboxcontent {
+  padding: 3px 3px 3px 3px;
+}
+#footernavstartover {
+  float:left;
+}
+#footernavnext {
+  float:right;
+}
+#blogListDiv {
+  margin: 0px 0px 10px 0px;
+}
+table {
+  width: 350px;
+  border: 0px;
+}
+td {
+  font-size:84%;
+  font-family:Tahoma,Geneva,sans-serif;
+}
+.error {
+  border: 2px solid #ff0000;
+  background: #ff9999;
+  padding: 3px 3px 3px 3px;
+  margin-bottom: 5px;
+}
+
