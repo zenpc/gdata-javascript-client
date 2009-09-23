@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>JavaScript Sample For The Google Sidewiki Data API</title>
+<link rel='stylesheet' type='text/css' href='http://code.google.com/css/dev_docs.css'>
+<style type='text/css'>
+  table {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  table td, table tr {
+    border-style: none;
+  }
+</style>
+<script type='text/javascript' src='http://www.google.com/jsapi'></script>
+<script type='text/javascript' src='sidewiki.js'></script>
+<script type='text/javascript'>
+
+<!--
+/* Copyright (c) 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* Loads the Google Data JavaScript Sidewiki client library */
+google.load('gdata', '2.x', { packages : [ 'sidewiki' ] });
+
+/**
+ * Callback method to prepare the system after the Google JavaScript
+ * client library has loaded.
+ */
+function init() {
+  /* Configure options for this sample */
+  setServiceName('Google-SidewikiSample-1-0');
+  setEntriesPaneId('sidewiki_entries_pane');
+  setEntryInfoPaneId('sidewiki_entry_info_pane');
+}
+
+google.setOnLoadCallback(init);
+
+-->
+</script>
+</head>
+
+<body>
+  <h1>JavaScript Sample For The Google Sidewiki Data API</h1>
+
+  <p>This sample demonstrates displaying a list of Sidewiki entries written for a particular web
+     page using the <a href='http://code.google.com/apis/sidewiki/docs/2.0/developers_guide_js.html'>Google
+     Data JavaScript client library</a> in conjunction with the
+     <a href='http://code.google.com/apis/sidewiki/'>Google Sidewiki Data API</a>.</p>
+
+  <p>Sidewiki feeds used here are public and therefore do not require authentication. At first,
+     Sidewiki entries written for specified web page are retrieved using Google Sidewiki
+     Javascript client library. Sidewiki entries are displayed as list of entry titles.</p>
+
+  <p>Each Sidewiki Entry may be retrieved separately to get additional info. Sidewiki entries
+     are retrieved from "entries written by author" feed. This feed is also used to retrieve
+     all entries written for a particular author.</p>
+
+  <p>As this sample uses a JavaScript client library, JavaScript support must be enabled in your
+     web browser. If this may be a concern in your application, you may wish to consider one of
+     the <a href='http://code.google.com/apis/gdata/clientlibs.html'>other Google Data client
+     libraries</a>.</p>
+
+  <h2><img src='../../common/images/steps/1b.gif' alt='1' style='vertical-align:middle; margin: 0;'>Retrieve Sidewiki entries by web page URL:</h2>
+
+  <form onsubmit="return false;">
+    <p>
+      <input type="text" size="30" id="webpageUri" name="webpageUri" value="http://www.google.com/">
+      <input type="button" name="submitButton" onclick="displayWebpageEntries(this.form.webpageUri.value);" value="Retrieve" />
+    </p>
+  </form>
+
+  <h2><img src='../../common/images/steps/2b.gif' alt='2' style='vertical-align:middle; margin: 0;'>Preview Sidewiki Entries</h2>
+  <p>After retrieving entries, click on Sidewiki entry title to show entry details</p>
+
+  <div id='sidewiki_entries_pane'></div>
+
+  <div id='sidewiki_entry_info_pane'></div>
+
+  <h2><img src='../../common/images/steps/3b.gif' alt='3' style='vertical-align:middle; margin: 0;'>Download And Customize</h2>
+
+  <p>Now that you&#8217;ve gotten a taste for how the Sidewiki sample works, play around with it, take it apart, and adapt it to your own needs. Start by obtaining a copy of the sample source: <a href='sidewiki.js'>sidewiki.js</a>.</p>
+
+  <p>Once you&#8217;ve downloaded this file, embed it in your HTML document along with the Google JavaScript API loader:</p>
+
+  <pre><code>&lt;script type="text/javascript"
+  src="http://www.google.com/jsapi"&gt;
+&lt;/script&gt;
+&lt;script type="text/javascript"
+  src="sidewiki.js"&gt;
+&lt;/script&gt;</code></pre>
+
+  <p>The next step is to load the Google Data client library. Since the JavaScript API loader is now embedded in your document, you can just call the <code>gdata.load()</code> function from within a <code>&lt;script&gt;</code> tag in the <code>&lt;head&gt;</code> of your HTML document:</p>
+
+  <pre><code>google.load("gdata", "2.x");</code></pre>
+
+  <p>Provide the Sidewiki library with a unique name to identify your application when communicating with Google&#8217;s servers:</p>
+
+  <pre><code>setServiceName('Google-SidewikiSample-1-0');</code></pre>
+
+  <p>Create a <code>&lt;div&gt;</code> to hold the entry list info and pass its ID to <code>SidewikiService.setEntriesPaneId()</code>. This <code>div</code>
+     will be used to display retrieved list of entries:</p>
+  <pre><code>setEntriesPaneId('sidewiki_entries_pane');</code></pre>
+
+  <p>Create another <code>&lt;div&gt;</code> to hold the entry list info and pass its ID to <code>SidewikiService.setEntryInfoPaneId()</code>. This <code>&lt;div&gt;</code>
+     will be used to display additional info retrieved when user clicks on entry title:</p>
+  <pre><code>setEntryInfoPaneId('sidewiki_enty_info_pane');</code></pre>
+
+  <p>After initialization is finished, you can call <code>displayWebpageEntries(webpage)</code> to display entries written for specified web page,
+     or <code>displayAuthorEntries(authorId)</code> to display entries written by specified author.</p>
+  <pre><code>displayWebpageEntries('http://www.google.com/');</code></pre>
+
+  <p>Your finished HTML document should look like this:</p>
+
+  <pre><code>&lt;html&gt;
+&lt;head&gt;
+...
+&lt;script type="text/javascript"
+  src="http://www.google.com/jsapi"&gt;
+&lt;/script&gt;
+
+&lt;script type="text/javascript"
+  src="sidewiki.js"&gt;
+&lt;/script&gt;
+
+&lt;script&gt;
+  google.load("gdata", "2.x");
+  setServiceName('Google-SidewikiSample-1-0');
+  setEntriesPaneId('sidewiki_entries_pane');
+  setEntryInfoPaneId('sidewiki_entry_info_pane');
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+...
+&lt;div id="sidewiki_entries_pane"&gt;&lt;/div&gt;
+&lt;div id="sidewiki_entry_info_pane"&gt;&lt;/div&gt;
+...
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <p>At this point, you should be ready to begin development. Happy coding!</p>
+
+  <h3 id='resources'>Resources</h3>
+
+  <ul>
+  <li><a href='http://code.google.com/apis/sidewiki/'>Google Sidewiki Data API</a></li>
+  <li><a href='http://code.google.com/apis/sidewiki/docs/2.0/developers_guide_js.html'>Google Sidewiki Data API Developer&#8217;s Guide for JavaScript</a></li>
+  <li><a href='http://code.google.com/apis/gdata/jsdoc/2.0/index.html'>Google Data JavaScript Client Library Reference Guide</a></li>
+  <li><a href='http://groups.google.com/group/google-sidewiki-api'>Google Sidewiki API Discussion Group</a></li>
+  </ul>
+</body>
+</html>
