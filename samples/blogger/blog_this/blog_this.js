@@ -21,7 +21,7 @@
  */
 
 // Load the Google data Blogger JavaScript library.
-google.load('gdata', '1.x');
+google.load('gdata', '2.x', {packages: ['blogger']});
 google.setOnLoadCallback(addEditorToPage);
    
 // Global object to hold constants and "global" variables.
@@ -204,21 +204,21 @@ function insertBlogEntry() {
   var blogSelector = document.getElementById(blogThis.BLOG_SELECTOR);
   var targetUrl = blogSelector.options[blogSelector.selectedIndex].value;
   // Create event.
-  var blogPost = new google.gdata.blogger.BlogPostEntry();
+  var blogPost = new google.gdata.blogger.PostEntry();
   // Add title - from the input field.
   var title = document.getElementById(blogThis.TITLE_INPUT).value;
-  blogPost.setTitle(google.gdata.Text.create(title));
+  blogPost.setTitle(google.gdata.atom.Text.create(title));
   // Get the body from the input field.
   var body = document.getElementById(blogThis.POST_BODY_INPUT).value;
   // Set the content to be the body of the input form and tell the server
   // to interpret it as html.
-  blogPost.setContent(google.gdata.Text.create(body, 'html'));
+  blogPost.setContent(google.gdata.atom.Text.create(body, 'html'));
   // Read the tags from the input form and add them as categories to 
   // the blog post entry.
   var tags = document.getElementById(blogThis.TAGS_INPUT).value;
   var tagList = tags.split(',');
   for (var i = 0, tag; tag = tagList[i]; ++i) {
-    blogPost.addCategory(new google.gdata.Category(
+    blogPost.addCategory(new google.gdata.atom.Category(
         {'scheme':'http://www.blogger.com/atom/ns#', 
          // Remove leading and trailing whitespace from the tag text.
          // If the tag begins or ends with whitespace, the Blogger server 

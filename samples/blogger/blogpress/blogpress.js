@@ -382,13 +382,13 @@ function insertOrUpdatePostEntry(isDraft) {
   var categoriesArray = categoriesString.split(',');
 
   // Create event object and set relevant properties.
-  var blogPostEntry = new google.gdata.blogger.BlogPostEntry();
-  blogPostEntry.setTitle(google.gdata.Text.create(title));
-  blogPostEntry.setContent(google.gdata.Text.create(content, 'html'));
+  var blogPostEntry = new google.gdata.blogger.PostEntry();
+  blogPostEntry.setTitle(google.gdata.atom.Text.create(title));
+  blogPostEntry.setContent(google.gdata.atom.Text.create(content, 'html'));
 
   for (var c = 0; c < categoriesArray.length; c++) {
     if (categoriesArray[c] != '') {
-      var category = new google.gdata.Category();
+      var category = new google.gdata.atom.Category();
       category.setTerm(categoriesArray[c]);
       category.setScheme('http://www.blogger.com/atom/ns#');
       blogPostEntry.addCategory(category);
@@ -396,9 +396,9 @@ function insertOrUpdatePostEntry(isDraft) {
   }
  
   if (isDraft) {
-    var draft = new google.gdata.Draft();
-    draft.setValue(google.gdata.Draft.VALUE_YES);
-    var control = new google.gdata.Control();
+    var draft = new google.gdata.app.Draft();
+    draft.setValue(google.gdata.app.Draft.VALUE_YES);
+    var control = new google.gdata.app.Control();
     control.setDraft(draft);
     blogPostEntry.setControl(control);
   }

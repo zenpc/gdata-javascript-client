@@ -155,8 +155,8 @@ function saveItem(form) {
   var title = form.item_entry_title.value;
   var itemType = form.item_entry_item_type.value;
   var content = form.item_entry_content.value;
-  items[id].item.setTitle(google.gdata.Text.create(title));
-  items[id].item.setAttribute(google.gdata.Text.create(content));
+  items[id].item.setTitle(google.gdata.atom.Text.create(title));
+  items[id].item.setAttribute(google.gdata.atom.Text.create(content));
   items[id].item.setAttribute('item_type', {type: 'text', value: itemType});
   items[id].dirty = true;
 
@@ -372,5 +372,5 @@ function handleError(e) {
   alert(e.cause ? e.cause.statusText : e.message);
 }
 
-google.load('gdata', '1.x', {packages: ['gbase']});
+google.load('gdata', '2.x', {packages: ['gbase']});
 google.setOnLoadCallback(initialize);
