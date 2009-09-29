@@ -29,7 +29,7 @@
       google.load("search", "1");
 
       // Load the Google data JavaScript client library
-      google.load("gdata", "1.x");
+      google.load("gdata", "2.x", {packages: ['blogger']});
 
       // Set init() to be called after JavaScript libraries load
       google.setOnLoadCallback(init);
@@ -176,7 +176,7 @@
 
       /**
        * Called after user clicks "Submit post" button; creates new
-       * blogPostEntry object, sets various properties such as title,
+       * PostEntry object, sets various properties such as title,
        * content, and category, and inserts it into the appropriate post feed
        */
       function addNewPost() {
@@ -184,14 +184,14 @@
             bloggedUpon.NEW_POST_CONTENT);
 
         if (bloggedUpon.SELECTED_BLOG_URL != null) {
-          var newEntry = new google.gdata.blogger.BlogPostEntry();
+          var newEntry = new google.gdata.blogger.PostEntry();
           
           var currentEntryTitle = bloggedUpon.CURRENT_ENTRY.titleNoFormatting;
           var titleArr = ['Re: ', currentEntryTitle];
           
-          var title = google.gdata.Text.create(titleArr.join(''));
-          var content = google.gdata.Text.create(newPostContent.value, 'html');
-          var category = new google.gdata.Category({
+          var title = google.gdata.atom.Text.create(titleArr.join(''));
+          var content = google.gdata.atom.Text.create(newPostContent.value, 'html');
+          var category = new google.gdata.atom.Category({
             'scheme': 'http://www.blogger.com/atom/ns#',
             'term': bloggedUpon.SELECTED_INTEREST
           });

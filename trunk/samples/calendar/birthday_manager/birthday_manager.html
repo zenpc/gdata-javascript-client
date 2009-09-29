@@ -31,7 +31,7 @@
  */
 
 // load the Google data JS Client Library
-google.load('gdata', '1.x');
+google.load('gdata', '2.x', {packages: ['calendar']});
 
 // This is the url for the user's default calendar
 var EVENT_FEED_URL =
@@ -208,7 +208,7 @@ function saveEvent() {
   var event = new google.gdata.calendar.CalendarEventEntry();
 
   // Add title - this will be shown in agenda view, so it should be useful
-  event.setTitle(google.gdata.Text.create('Birthday Reminder for ' + name));
+  event.setTitle(google.gdata.atom.Text.create('Birthday Reminder for ' + name));
 
   // Add recurrence - birthday reminders should be repeated annually
   var today = new Date();
@@ -236,7 +236,7 @@ function saveEvent() {
   }
 
   // Add (empty) content
-  event.setContent(google.gdata.Text.create(''));
+  event.setContent(google.gdata.atom.Text.create(''));
 
   // Add web content - this will place an icon on the calendar
   //  that opens a calendar gadget when clicked. 

@@ -106,7 +106,7 @@ google.setOnLoadCallback(init);
 
   <p>The next step is to load the Google Data client library. Since the JavaScript API loader is now embedded in your document, you can just call the <code>gdata.load()</code> function from within a <code>&lt;script&gt;</code> tag in the <code>&lt;head&gt;</code> of your HTML document:</p>
 
-  <pre><code>google.load("gdata", "2.x");</code></pre>
+  <pre><code>google.load("gdata", "2.x", { packages : [ "sidewiki" ] });</code></pre>
 
   <p>Provide the Sidewiki library with a unique name to identify your application when communicating with Google&#8217;s servers:</p>
 
@@ -138,7 +138,7 @@ google.setOnLoadCallback(init);
 &lt;/script&gt;
 
 &lt;script&gt;
-  google.load("gdata", "2.x");
+  google.load("gdata", "2.x", { packages : [ 'sidewiki' ] });
   setServiceName('Google-SidewikiSample-1-0');
   setEntriesPaneId('sidewiki_entries_pane');
   setEntryInfoPaneId('sidewiki_entry_info_pane');

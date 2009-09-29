@@ -64,7 +64,7 @@ calendblogger.CALENDAR_LOGIN_LABEL = 'Calendar Login';
 calendblogger.CALENDAR_LOGOUT_LABEL = 'Calendar Logout';
 
 // Load the Google data JavaScript client library
-google.load("gdata", "1.x");
+google.load("gdata", "2.x", {packages: ['blogger', 'calendar']});
 google.setOnLoadCallback(init);
 
 
@@ -437,7 +437,7 @@ function insertBlogEntry() {
 
   var blogContent = $(calendblogger.DISPLAY_DIV).html();
   
-  var newEntry = new google.gdata.blogger.BlogPostEntry(
+  var newEntry = new google.gdata.blogger.PostEntry(
       {
           authors: [{name: '', email: ''}],
           title: {type: 'text', text: blogTitle},
