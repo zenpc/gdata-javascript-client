@@ -110,8 +110,8 @@ function getSidewikiService() {
  * @return escaped text safe to use as HTML
  */
 function escapeHtml(text) {
-  return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-      .replace('"', '&quot;');
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
 }
 
 /* Callback functions */
