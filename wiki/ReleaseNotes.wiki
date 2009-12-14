@@ -1,5 +1,16 @@
 #summary Details on whats new in each version of the JavaScript Client
 
+= Version 2.1 =
+
+  * Added support for parameters to handle batch requests
+  * Calendar
+    * Added getIncomplete()/setIncomplete() methods on !CalendarEntry.
+    * Added getAllowIncomplete()/setAllowIncomplete() methods on !CalendarEventQuery
+  * Sidewiki
+    * Added Usefulness parameter
+    * Added getUsefulness()/setUsefulness() methods on !SidewikiEntry
+    * Added getIncludeLessUserful()/setIncludeLessUseful() methods on !SidewikiEntryQuery
+
 = Version 2.0 =
 
   * Launched Sidewiki client.
@@ -10,6 +21,7 @@
   * Support for XML content in the KML content field of the Maps API.
   * New samples for AuthSubJS, conditional gets and conditional updates.
   * Removed deprecated elements.
+
 
 = Version 1.10 = 
 
