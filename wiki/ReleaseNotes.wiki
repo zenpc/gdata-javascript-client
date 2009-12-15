@@ -5,7 +5,7 @@
   * Added method Service.userXGDataAuthorization() for environments that support cross-domain XmlHttpRequest, but don't support the Authorization header (this has been reported in some iPhones).
   * When encountering an error using gadgets and the OAuth proxy, the OAuth approval url is now included with the error (if it is present).
   * Analytics
-    * Support for Analytics V2.1, including advanced segments, goal configuration information, and custom variables.
+    * Support for Analytics V2, including advanced segments, goal configuration information, and custom variables.
   * Finance
     * Updated to use GData V2.0.
   * Maps
