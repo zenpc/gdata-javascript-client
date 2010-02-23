@@ -1,0 +1,237 @@
+<html>
+<head>
+<style>
+html, body, div, span, img, applet, embed, canvas, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, ins, kbd, q, samp, small, strike, strong, sub, sup, tt, var, b, u, i, s, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, button, table, caption, tbody, tfoot, thead, tr, th, td {
+background: transparent none repeat scroll 0 0;
+border: 0 none;
+font-size: 100%;
+outline-style: none;
+outline-width: 0;
+padding: 0;
+}
+
+body, button, input, textarea {
+font-family: Arial,Helvetica,sans-serif;
+font-size: 12px;
+font-size-adjust: none;
+font-style: normal;
+font-variant: normal;
+font-weight: normal;
+line-height: normal;
+}
+
+a {
+color: #0033CC;
+text-decoration:none;
+}
+
+#divVideos {
+  margin-top: 10px;
+  width: 95%;
+}
+
+.video-cell {
+  width: 125px;
+  padding: 5px;
+  display: inline-block;
+  vertical-align:top;
+}
+
+.video-title {
+  font-weight: bold;
+}
+
+.video-thumb-image {
+  width: 120px;
+  height: 90px;
+}
+
+.video-num-views {
+  color: #666666;
+  font-size: 11px;
+}
+
+.video-username {
+  padding-left: 1px;
+  margin-right: 12px;
+}
+
+.largeLink {
+  font-size: 1.5em;
+}
+</style>
+<script src="../../common/json2.js"></script>
+<script src="http://www.google.com/jsapi"></script>
+<script>
+
+  // Load the experimental version of the Google Data JavaScript Client
+  // See TODO(link here) for more details.
+  google.load('gdata', '2.x', { packages : ['experimental']});
+
+  /** A helper function to remove all the children of a given node. */
+  function removeChildren(node) {
+    var child;
+    while ((child = node.firstChild)) {
+      node.removeChild(child);
+    }
+  }
+
+  /** Returns the selected item in a select element. */
+  function getSelectValue(selectId) {
+    var selectDom = document.getElementById(selectId);
+    return selectDom[selectDom.selectedIndex].value;
+  }
+
+  /** Show a loading gif */
+  function showLoading() {
+    document.getElementById('divResults').style.display = 'none';
+    document.getElementById('divJson').style.display = 'none';
+    document.getElementById('divLoading').style.display = 'block';
+  }
+
+  /** Toggle between the results view and json view. */
+  function showDiv(divToShow) {
+    var divToHide = divToShow == 'divResults' ? 'divJson' : 'divResults';
+    document.getElementById('divLoading').style.display = 'none';
+    document.getElementById(divToHide).style.display = 'none';
+    document.getElementById(divToShow).style.display = 'block';
+  }
+
+  /** Load the video feed. */
+  function loadVideos() {
+    showLoading();
+    var time = getSelectValue('selectTime');
+    var feedId = getSelectValue('selectFeedId');
+    var feedUri = 'http://gdata.youtube.com/feeds/api/standardfeeds/' + encodeURIComponent(feedId);
+    // Create a new ApiRequest object and add aguments to the request.
+    google.gdata.client.getRequest()
+        .setUri(feedUri)              // The URI of the feed.
+        .addParameter('v', 2)         // YouTube's JSON API is in Version 2 or higher.
+        .addParameter('time', time)   // Add a time query parameter.
+        .execute(loadVideosCallback); // Execute the request.
+  }
+
+  // Display the results of the request. */
+  function loadVideosCallback(response) {
+
+    document.getElementById('jsonCode').innerHTML = JSON.stringify(response, null, '  ');
+
+		var fragment = document.createDocumentFragment();
+    if (response['error']) {
+      // If there was an error, print the error.
+      fragment.appendChild(document.createTextNode('ERROR: ' +
+          response.error.message));
+    } else if (response.data) {
+      var items = response.data.items;
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        
+        var videoCell = document.createElement('div');
+        videoCell.className = 'video-cell';
+        
+        var videoEntry = document.createElement('div');
+        videoEntry.className = 'video-entry';
+        
+        var videoThumbLink = document.createElement('a');
+        videoThumbLink.className = 'video-thumb';
+        videoThumbLink.href = item.player['hqDefault'];
+        
+        var videoThumbImg = document.createElement('img');
+        videoThumbImg.className = 'video-thumb-image';
+        videoThumbImg.src = item.thumbnail['hqDefault'];
+        
+        videoThumbLink.appendChild(videoThumbImg);
+        videoEntry.appendChild(videoThumbLink);
+        videoCell.appendChild(videoEntry);
+        
+        var videoMainContent = document.createElement('div');
+        videoMainContent.className = 'video-main-content';
+        
+        var videoTitle = document.createElement('div');
+        videoTitle.className = 'video-title';
+        
+        var videoTitleLink = document.createElement('a');
+        videoTitleLink.href = item.player['hqDefault'];
+        videoTitleLink.innerHTML = item.title;
+        
+        videoTitle.appendChild(videoTitleLink);
+        videoMainContent.appendChild(videoTitle);
+        
+        var videoFacets = document.createElement('div');
+        videoFacets.className = 'video-facets';
+        
+        var videoNumViews = document.createElement('span');
+        videoNumViews.className = 'video-num-views';
+        videoNumViews.innerHTML = item.viewCount + ' views';
+        
+        var videoUsername = document.createElement('div');
+        videoUsername.className = 'video-username';
+
+        var videoUsernameLink = document.createElement('a');
+        videoUsernameLink.href = 'http://www.youtube.com/user/' + encodeURIComponent(item.uploader);
+        videoUsernameLink.innerHTML = item.uploader;
+        
+        videoUsername.appendChild(videoUsernameLink);
+        videoFacets.appendChild(videoNumViews);
+        videoFacets.appendChild(videoUsername);
+        videoMainContent.appendChild(videoFacets);
+
+        videoCell.appendChild(videoMainContent);
+
+        fragment.appendChild(videoCell);
+      }
+    }
+    var divVideos = document.getElementById('divVideos');
+    removeChildren(divVideos);
+    divVideos.appendChild(fragment);
+    showDiv('divResults');
+  }
+
+</script>
+</head>
+<body>
+<h1>Using the GData JavaScript Client to Access the YouTube JSON-C API</h1>
+<form>
+
+Load the 
+
+<select id="selectFeedId">
+<option value="top_rated">Top Rated</option>
+<option value="top_favorites">Top Favorites</option>
+<option value="most_viewed">Most Viewed</option>
+<option value="most_popular">Most Popular</option>
+<option value="most_discussed">Most Discussed</option>
+<option value="most_responded">Most Responded</option>
+</select>
+
+videos from 
+
+<select id="selectTime">
+<option value="today">Today</option>
+<option value="this_week">This Week</option>
+<option value="this_month">This Month</option>
+<option value="all_time">All Time</option>
+</select>
+
+<input type="button" value="Load" onClick="loadVideos(); return false;">
+
+</form>
+
+<hr />
+
+<div id="divLoading" style="display: none;">
+  <img src="../../common/images/loading.gif">
+</div>
+
+<div id="divResults" style="display: none;">
+  <a href="#" onclick="showDiv('divJson'); return false;" class="largeLink">View JSON</a>
+  <div id="divVideos"></div>
+</div>
+
+<div id="divJson" style="display: none">
+  <a href="#" onclick="showDiv('divResults'); return false;" class="largeLink">View Videos</a>
+  <pre id="jsonCode"></pre>
+</div>
+
+</body>
+</html>
