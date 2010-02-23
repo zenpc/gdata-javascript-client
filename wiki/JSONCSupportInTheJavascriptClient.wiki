@@ -55,6 +55,11 @@ Here's a snippet of code that demonstrates how to make JSON-C requests:
 
 
 
+= Changes =
+
+This biggest change from the existing JS client library is that requests are encapsulated in an object.  Parameters are added incrementally to this request object.  Once the request object has all the necessary parameters, it is executed.  We're hoping that this new interface will be simpler and more intuitive to work with than the old interface (and just to clarify, the old interface isn't going anywhere.  This new interface is for JSON-C APIs only).
+
+
 = Loading the Library =
 
 We've created a new package called "experimental" which will be a testing ground for new features to the client library.  You can load this "experimental" library with the following command:
