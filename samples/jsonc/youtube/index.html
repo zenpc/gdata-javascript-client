@@ -102,7 +102,7 @@ text-decoration:none;
     showLoading();
     var time = getSelectValue('selectTime');
     var feedId = getSelectValue('selectFeedId');
-    var feedUri = 'http://gdata.youtube.com/feeds/api/standardfeeds/' + encodeURIComponent(feedId);
+    var feedUri = 'https://gdata.youtube.com/feeds/api/standardfeeds/' + encodeURIComponent(feedId);
     // Create a new ApiRequest object and add aguments to the request.
     google.gdata.client.getRequest()
         .setUri(feedUri)              // The URI of the feed.

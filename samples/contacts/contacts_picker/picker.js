@@ -37,9 +37,9 @@ if (!Array.prototype.some)
 }
 
 var Picker = {
-  AUTH_SCOPE: 'http://www.google.com/m8/feeds/',
-  CONTACTS_URL: 'http://www.google.com/m8/feeds/contacts/default/full',
-  GROUPS_URL: 'http://www.google.com/m8/feeds/groups/default/full',
+  AUTH_SCOPE: 'https://www.google.com/m8/feeds/',
+  CONTACTS_URL: 'https://www.google.com/m8/feeds/contacts/default/full',
+  GROUPS_URL: 'https://www.google.com/m8/feeds/groups/default/full',
   
   GROUPS_PANE_ID: 'picker_groups_pane',
   CONTACTS_PANE_ID: 'picker_contacts_pane',

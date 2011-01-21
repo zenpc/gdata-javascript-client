@@ -49,7 +49,7 @@ function generateJsSource() {
     elementToUpdate.innerText = 
         elementUpdateTemplate.innerText +
         "\n<script type=\"text/javascript\">" +
-        "\nloadCalendar('http://www.google.com/calendar/feeds/" + 
+        "\nloadCalendar('https://www.google.com/calendar/feeds/" + 
         document.getElementById('calendarAddress').value + "/public/full');" +
         "\n</script>";
   } else {
@@ -57,7 +57,7 @@ function generateJsSource() {
     elementToUpdate.textContent = 
         elementUpdateTemplate.textContent +
         "\n<script type=\"text/javascript\">" +
-        "\nloadCalendar('http://www.google.com/calendar/feeds/" + 
+        "\nloadCalendar('https://www.google.com/calendar/feeds/" + 
         document.getElementById('calendarAddress').value + "/public/full');" +
         "\n</script>";
   }
@@ -83,7 +83,7 @@ function padNumber(num) {
  * @param {string} calendarAddress is the email-style address for the calendar
  */ 
 function loadCalendarByAddress(calendarAddress) {
-  var calendarUrl = 'http://www.google.com/calendar/feeds/' +
+  var calendarUrl = 'https://www.google.com/calendar/feeds/' +
                     calendarAddress + 
                     '/public/full';
   loadCalendar(calendarUrl);
@@ -228,7 +228,7 @@ google.setOnLoadCallback(init);
 <p>
   An example calendar feed is:
   <pre>
-http://www.google.com/calendar/feeds/&lt;calendar address&gt;/public/full
+https://www.google.com/calendar/feeds/&lt;calendar address&gt;/public/full
 </pre>
 </p>
 <form onsubmit="return false;">
@@ -292,7 +292,7 @@ function padNumber(num) {
  * @param {string} calendarAddress is the email-style address for the calendar
  */ 
 function loadCalendarByAddress(calendarAddress) {
-  var calendarUrl = 'http://www.google.com/calendar/feeds/' +
+  var calendarUrl = 'https://www.google.com/calendar/feeds/' +
                     calendarAddress + 
                     '/public/full';
   loadCalendar(calendarUrl);

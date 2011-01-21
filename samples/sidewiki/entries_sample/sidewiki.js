@@ -16,7 +16,7 @@
 /**
  * Base url for all Sidewiki API feeds.
  */
-var BASE_URL = 'http://www.google.com/sidewiki/feeds/';
+var BASE_URL = 'https://www.google.com/sidewiki/feeds/';
 
 /**
  * ID of the HTML element that is used to display a list of retrieved

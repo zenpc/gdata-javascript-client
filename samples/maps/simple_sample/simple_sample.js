@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 /* Global constants. */
-var MAPS_SCOPE = 'http://maps.google.com/maps/feeds/';
-var MAPS_MAIN_FEED = 'http://maps.google.com/maps/feeds/maps/default/full';
+var MAPS_SCOPE = 'https://maps.google.com/maps/feeds/';
+var MAPS_MAIN_FEED = 'https://maps.google.com/maps/feeds/maps/default/full';
 
 /* Global variables. */
 var g_mapsService;  // google.gdata.maps.MapsService

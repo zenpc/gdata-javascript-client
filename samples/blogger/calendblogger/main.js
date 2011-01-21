@@ -29,14 +29,14 @@ var calendblogger = {};
 
 // The Calendar Data API feed URL that allows event query for the demo
 calendblogger.CALENDAR_FEED_URL = 
-    'http://www.google.com/calendar/feeds/default/private/full';
+    'https://www.google.com/calendar/feeds/default/private/full';
 
 // The Blogger API feed URL that allows blog entry submission for the demo
-calendblogger.BLOGGER_FEED_URL = 'http://www.blogger.com/feeds';
+calendblogger.BLOGGER_FEED_URL = 'https://www.blogger.com/feeds';
 
 // The Blogger API feed URL that allows retrieval of blogs belonging to a user
 calendblogger.BLOGGER_GETBLOGS_FEED = 
-    'http://www.blogger.com/feeds/default/blogs';
+    'https://www.blogger.com/feeds/default/blogs';
 
 calendblogger.bloggerService = null;
 calendblogger.calendarService = null;

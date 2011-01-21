@@ -17,13 +17,13 @@
  * Authorizing to this URL enables us full access to user's blog feeds.
  * @type {String}
  */
-var BLOGGER_AUTH_URL = 'http://www.blogger.com/feeds';
+var BLOGGER_AUTH_URL = 'https://www.blogger.com/feeds';
 
 /**
  * This is the URL to query to get a list of the user's blogs
  * @type {String}
  */ 
-var BLOGGER_LIST_URL = 'http://www.blogger.com/feeds/default/blogs';
+var BLOGGER_LIST_URL = 'https://www.blogger.com/feeds/default/blogs';
 
 /**
  * This object holds all the global variables used throughout the program.
