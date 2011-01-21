@@ -150,7 +150,6 @@
         running = true;
         var select = document.getElementById('blogListSelect');
         var feedUri = select.options[select.selectedIndex].value;
-        feedUrl = feedUri.replace('http:', 'https:');
         var opt_params = {};
         if (blogPostCache && document.getElementById('useEtagCheckbox').checked) {
           var etag = blogPostCache.feed.getEtag();
@@ -160,8 +159,8 @@
           }
         }
         startTimer();
-        service.getBlogPostFeed(feedUri, loadBlogPostHandler, errorHandler,
-            opt_params);
+        service.getBlogPostFeed(feedUri.replace('http:', 'https:'),
+            loadBlogPostHandler, errorHandler, opt_params);
       }
 
       /** Display a drop-down list of the user's blog. */
