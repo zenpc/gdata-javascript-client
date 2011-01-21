@@ -231,7 +231,7 @@ ItemController.prototype.render = function(elt) {
     title.appendChild(document.createTextNode(this.title));
    
 
-    var displayUrl = "http://www.google.com/notebook/public/" +
+    var displayUrl = "https://www.google.com/notebook/public/" +
         this.userId + "/" + this.notebookId;
     var urlNode = create("div", "pageurl");
     urlNode.innerHTML = "from <a href='" + displayUrl + "'>" + displayUrl + "</a> " +

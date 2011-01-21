@@ -9,7 +9,7 @@
       google.load('gdata', '2.x', { packages : ['blogger'] });
 
       // The Blogger scope.
-      var scope = 'http://www.blogger.com/feeds/';
+      var scope = 'https://www.blogger.com/feeds/';
 
       // The google.gdata.blogger.BloggerService object used to make API requests.
       var service = null;
@@ -188,7 +188,7 @@
 
       /** Load the user's blog. */
       function loadBlogList() {
-        var feedUri = 'http://www.blogger.com/feeds/default/blogs';
+        var feedUri = 'https://www.blogger.com/feeds/default/blogs';
         service.getBlogFeed(feedUri, loadBlogListHandler, errorHandler);
       }
 

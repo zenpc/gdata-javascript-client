@@ -27,8 +27,8 @@ google.setOnLoadCallback(addEditorToPage);
 // Global object to hold constants and "global" variables.
 var blogThis = {
   // URL constants.
-  BLOG_LIST_URL: 'http://www.blogger.com/feeds/default/blogs',
-  AUTH_URL: 'http://www.blogger.com/feeds',
+  BLOG_LIST_URL: 'https://www.blogger.com/feeds/default/blogs',
+  AUTH_URL: 'https://www.blogger.com/feeds',
   // Document element ID constants.
   SAMPLE_CONTAINER: 'blog_this',
   POST_BODY_INPUT: 'blog_post_body',

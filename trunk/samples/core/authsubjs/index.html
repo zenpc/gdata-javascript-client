@@ -45,7 +45,7 @@
        * Shows the "loading" div and then prompts the user to log in.
        */
       function login() {
-        var scope = 'http://www.blogger.com/feeds';
+        var scope = 'https://www.blogger.com/feeds';
         transitionDiv('divLoggedOut', 'divLoggingIn', function() {
           google.accounts.user.login(scope);
         });
@@ -89,7 +89,7 @@
        */
       function loadData() {
         var service = new google.gdata.blogger.BloggerService('AuthSubJS Sample');
-        var feedUrl = 'http://www.blogger.com/feeds/default/blogs';
+        var feedUrl = 'https://www.blogger.com/feeds/default/blogs';
         service.getBlogFeed(feedUrl, loadDataHandler, errorHandler);
       }
 

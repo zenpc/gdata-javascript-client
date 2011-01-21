@@ -14,9 +14,9 @@ var items = {};
 var numDirty = 0;
 
 var FEEDS = {
-  scope: 'http://www.google.com/base/feeds',
-  snippets: 'http://www.google.com/base/feeds/snippets',
-  items: 'http://www.google.com/base/feeds/items'
+  scope: 'https://www.google.com/base/feeds',
+  snippets: 'https://www.google.com/base/feeds/snippets',
+  items: 'https://www.google.com/base/feeds/items'
 };
 
 var SAVE_BUTTON_START = 'Save changes';
