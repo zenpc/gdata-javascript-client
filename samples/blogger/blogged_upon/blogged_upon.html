@@ -168,7 +168,7 @@
        */
       function changeSelectedBlog(blogSelect) {
         if (blogSelect.value != '') {
-          bloggedUpon.SELECTED_BLOG_URL = blogSelect.value;
+          bloggedUpon.SELECTED_BLOG_URL = blogSelect.value.replace('http:', 'https:');
         } else {
           bloggedUpon.SELECTED_BLOG_URL = null;
         }
